@@ -1,25 +1,27 @@
 import math
 
-from model_objects import Discount, ProductQuantity, SpecialOfferType
+from catalog import SupermarketCatalog
+from model_objects import Discount, Offer, Product, ProductQuantity, SpecialOfferType
+from receipt import Receipt
 
 
 class ShoppingCart:
-    def __init__(self):
-        self._items = []
-        self._product_quantities = {}
+    def __init__(self) -> None:
+        self._items: list[ProductQuantity] = []
+        self._product_quantities: dict[Product, float] = {}
 
     @property
-    def items(self):
+    def items(self) -> list[ProductQuantity]:
         return self._items
 
-    def add_item(self, product):
+    def add_item(self, product: Product) -> None:
         self.add_item_quantity(product, 1.0)
 
     @property
-    def product_quantities(self):
+    def product_quantities(self) -> dict[Product, float]:
         return self._product_quantities
 
-    def add_item_quantity(self, product, quantity):
+    def add_item_quantity(self, product: Product, quantity: float) -> None:
         self._items.append(ProductQuantity(product, quantity))
         if product in self._product_quantities.keys():
             self._product_quantities[product] = (
@@ -28,14 +30,19 @@ class ShoppingCart:
         else:
             self._product_quantities[product] = quantity
 
-    def handle_offers(self, receipt, offers, catalog):
+    def handle_offers(
+        self,
+        receipt: Receipt,
+        offers: dict[Product, Offer],
+        catalog: SupermarketCatalog,
+    ) -> None:
         for p in self._product_quantities.keys():
             quantity = self._product_quantities[p]
             if p in offers.keys():
                 offer = offers[p]
                 unit_price = catalog.unit_price(p)
                 quantity_as_int = int(quantity)
-                discount = None
+                discount: Discount | None = None
                 x = 1
                 if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
                     x = 3
