@@ -2,6 +2,7 @@ import math
 
 from catalog import SupermarketCatalog
 from model_objects import Discount, Offer, Product, ProductQuantity, SpecialOfferType
+from offer_strategies import PercentDiscountStrategy
 from receipt import Receipt
 
 
@@ -71,11 +72,8 @@ class ShoppingCart:
                 discount = Discount(product, "3 for 2", -discount_amount)
 
             if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                discount = Discount(
-                    product,
-                    str(offer.argument) + "% off",
-                    -quantity * unit_price * offer.argument / 100.0,
-                )
+                strategy = PercentDiscountStrategy(offer.argument)
+                discount = strategy.calculate_discount(product, quantity, unit_price)
 
             if (
                 offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT
