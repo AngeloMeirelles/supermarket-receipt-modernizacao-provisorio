@@ -44,16 +44,10 @@ class DiscountCalculator:
         - cada unidade entra em no máximo um combo;
         - só unidades inteiras formam combo.
         """
-        available_units = {
-            product: int(quantity)
-            for product, quantity in product_quantities.items()
-            if product not in offers
-        }
+        available_units = self._units_available_for_bundles(product_quantities, offers)
         discounts = []
         for bundle in bundles:
-            complete_bundles = min(
-                available_units.get(product, 0) for product in bundle.products
-            )
+            complete_bundles = bundle.count_complete(available_units)
             if complete_bundles < 1:
                 continue
 
@@ -61,6 +55,17 @@ class DiscountCalculator:
                 available_units[product] -= complete_bundles
                 discounts.append(self._bundle_discount(product, complete_bundles))
         return discounts
+
+    @staticmethod
+    def _units_available_for_bundles(
+        product_quantities: dict[Product, float], offers: dict[Product, Offer]
+    ) -> dict[Product, int]:
+        """Unidades inteiras dos produtos que não têm oferta individual."""
+        return {
+            product: int(quantity)
+            for product, quantity in product_quantities.items()
+            if product not in offers
+        }
 
     def _bundle_discount(self, product: Product, units: int) -> Discount:
         full_price = units * self._catalog.unit_price(product)

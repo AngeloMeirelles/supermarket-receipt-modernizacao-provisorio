@@ -50,3 +50,7 @@ class Bundle:
         if len(products) < 2 or len(set(products)) != len(products):
             raise ValueError("a bundle needs at least two different products")
         self.products = list(products)
+
+    def count_complete(self, available_units: dict[Product, int]) -> int:
+        """Quantos combos completos cabem nas unidades disponíveis."""
+        return min(available_units.get(product, 0) for product in self.products)

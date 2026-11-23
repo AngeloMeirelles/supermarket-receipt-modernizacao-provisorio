@@ -376,6 +376,13 @@ def test_bundle_keeps_its_products(toothbrush, toothpaste):
     assert bundle.products == [toothbrush, toothpaste]
 
 
+def test_bundle_counts_how_many_complete_sets_fit(toothbrush, toothpaste, rice):
+    bundle = Bundle([toothbrush, toothpaste])
+
+    assert bundle.count_complete({toothbrush: 3, toothpaste: 2, rice: 9}) == 2
+    assert bundle.count_complete({toothbrush: 3}) == 0
+
+
 def test_bundle_needs_at_least_two_products(toothbrush):
     with pytest.raises(ValueError, match="at least two different products"):
         Bundle([toothbrush])
