@@ -41,3 +41,12 @@ class Discount:
         self.product = product
         self.description = description
         self.discount_amount = discount_amount
+
+
+class Bundle:
+    """Combo promocional: conjunto de produtos diferentes com desconto."""
+
+    def __init__(self, products: list[Product]) -> None:
+        if len(products) < 2 or len(set(products)) != len(products):
+            raise ValueError("a bundle needs at least two different products")
+        self.products = list(products)
