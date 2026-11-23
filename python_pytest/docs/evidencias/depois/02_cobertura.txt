@@ -1,0 +1,23 @@
+$ python -m coverage run --source=src -m pytest -q
+# executado em 2026-11-23 20:32:29 | código de saída: 0
+
+........................................................................ [ 76%]
+......................                                                   [100%]
+94 passed in 0.19s
+
+
+$ python -m coverage report -m
+# executado em 2026-11-23 20:32:31 | código de saída: 0
+
+Name                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+src\catalog.py                      8      0   100%
+src\discount_calculator.py         36      0   100%
+src\model_objects.py               34      0   100%
+src\offer_strategies.py            47      0   100%
+src\offer_strategy_factory.py      14      0   100%
+src\receipt.py                     28      0   100%
+src\shopping_cart.py               25      0   100%
+src\teller.py                      30      0   100%
+-------------------------------------------------------------
+TOTAL                             222      0   100%

@@ -1,0 +1,82 @@
+$ safety check -r docs/evidencias/depois/dependencias_instaladas.txt
+# executado em 2026-11-23 20:33:34 | código de saída: 0
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
++==============================================================================+
+
+                               /$$$$$$            /$$
+                              /$$__  $$          | $$
+           /$$$$$$$  /$$$$$$ | $$  \__//$$$$$$  /$$$$$$   /$$   /$$
+          /$$_____/ |____  $$| $$$$   /$$__  $$|_  $$_/  | $$  | $$
+         |  $$$$$$   /$$$$$$$| $$_/  | $$$$$$$$  | $$    | $$  | $$
+          \____  $$ /$$__  $$| $$    | $$_____/  | $$ /$$| $$  | $$
+          /$$$$$$$/|  $$$$$$$| $$    |  $$$$$$$  |  $$$$/|  $$$$$$$
+         |_______/  \_______/|__/     \_______/   \___/   \____  $$
+                                                          /$$  | $$
+                                                         |  $$$$$$/
+  by safetycli.com                                        \______/
+
++==============================================================================+
+
+ REPORT 
+
+  Safety v3.8.1 is scanning for Vulnerabilities...
+  Scanning dependencies in your files:
+
+  -> docs/evidencias/depois/dependencias_instaladas.txt
+
+  Using open-source vulnerability database
+  Found and scanned 24 packages
+  Timestamp 2026-11-23 20:33:38
+  0 vulnerabilities reported
+  0 vulnerabilities ignored
++==============================================================================+
+
+ No known security vulnerabilities reported. 
+
++==============================================================================+
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\safety\auth\main.py:5: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose.errors import ExpiredTokenError
+D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\authlib\integrations\httpx_client\assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+  from ._compat import httpx2
+
+
+$ safety scan --target .
+# executado em 2026-11-23 20:33:38 | código de saída: 1
+
+Please login or register Safety CLI (free forever) to scan and secure your 
+projects with Safety
+
+(R)egister for a free account in 30 seconds, or (L)ogin with an existing 
+account to continue (R/L): D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\safety\auth\main.py:5: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose.errors import ExpiredTokenError
+D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\authlib\integrations\httpx_client\assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+  from ._compat import httpx2
+Unhandled exception happened: EOF when reading a line
