@@ -1,0 +1,10 @@
+$ ruff check src tests
+# executado em 2026-11-23 19:35:47 | código de saída: 0
+
+All checks passed!
+
+
+$ ruff format --check src tests
+# executado em 2026-11-23 19:35:47 | código de saída: 0
+
+16 files already formatted

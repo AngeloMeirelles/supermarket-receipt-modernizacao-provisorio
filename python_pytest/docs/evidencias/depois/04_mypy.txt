@@ -1,0 +1,10 @@
+$ mypy src
+# executado em 2026-11-23 19:35:47 | código de saída: 0
+
+Success: no issues found in 8 source files
+
+
+$ mypy --strict src
+# executado em 2026-11-23 19:35:48 | código de saída: 0
+
+Success: no issues found in 8 source files
