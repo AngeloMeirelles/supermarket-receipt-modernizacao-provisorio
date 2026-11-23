@@ -11,7 +11,7 @@ Para ver um arquivo como era: `git show c72d68a:python_pytest/src/shopping_cart.
 
 | # | Problema | Onde (código original) | Efeito |
 |---|---|---|---|
-| D1 | Método longo, com complexidade ciclomática 13 (única nota C do projeto) | `src/shopping_cart.py`, linhas 30 a 68, `handle_offers` | Difícil de ler, de testar e de alterar sem quebrar outra oferta |
+| D1 | Método longo, com muitos caminhos condicionais | `src/shopping_cart.py`, linhas 30 a 68, `handle_offers` | Difícil de ler, de testar e de alterar sem quebrar outra oferta |
 | D2 | Condicionais por tipo de oferta | `src/shopping_cart.py`, linhas 39, 42, 49, 53, 58 e 62 | Cada oferta nova obriga a editar o mesmo método (fere o princípio Aberto/Fechado) |
 | D3 | Responsabilidade no lugar errado: o carrinho calcula descontos | `src/shopping_cart.py`, linhas 30 a 68 | O carrinho passa a ter dois motivos para mudar: guardar itens e regras de promoção (fere o princípio da Responsabilidade Única) |
 | D4 | Duplicação: três fórmulas quase iguais para as ofertas por quantidade | `src/shopping_cart.py`, linhas 45-46, 54-55 e 63-64 | Corrigir uma fórmula não corrige as outras. Foi assim que o defeito D7 ficou só em uma delas |
@@ -20,7 +20,7 @@ Para ver um arquivo como era: `git show c72d68a:python_pytest/src/shopping_cart.
 | D7 | Defeito na oferta "2 por valor" com quantidade ímpar | `src/shopping_cart.py`, linha 45: `quantity_as_int / x` | A divisão dá 1,5 par para 3 unidades. O cliente paga mais do que sem a oferta (ver seção 7) |
 | D8 | Fração de peso não cobrada nas ofertas por quantidade | `src/shopping_cart.py`, linhas 36, 54-55 e 63-64 | 3,5 kg no "leve 3, pague 2" custam o mesmo que 2 kg. Comportamento mantido e registrado em teste |
 | D9 | O caixa depende de um atributo que só existe no catálogo de teste | `src/teller.py`, linha 29, usa `catalog.products`, ausente em `src/catalog.py` | Um catálogo real sem esse atributo quebraria `product_with_name` |
-| D10 | Nenhuma anotação de tipo | Todos os arquivos de `src/` (33 erros no `mypy --strict`) | Erros de tipo só aparecem em execução |
+| D10 | Nenhuma anotação de tipo | Todos os arquivos de `src/` | Erros de tipo só aparecem em execução |
 | D11 | Quase nenhum teste | `tests/test_supermarket.py`: 1 teste. Cobertura de `shopping_cart.py`: 41% | Não havia rede de segurança para refatorar |
 | D12 | Nome de enumeração enganoso | `SpecialOfferType.TEN_PERCENT_DISCOUNT` aceita qualquer percentual (`src/shopping_cart.py`, linhas 58-60) | Mantido, porque o nome faz parte da interface pública |
 | D13 | Exceção genérica e mensagem repetida | `src/catalog.py`, linhas 5 e 8 | Tipo da exceção mantido para não alterar o comportamento. A mensagem repetida virou uma constante |
@@ -48,7 +48,7 @@ oferta desconhecido ignorado sem erro.
 
 Proteção: `tests/test_comportamento_legado.py` foi escrito e executado sobre o
 código original antes de qualquer alteração
-(`docs/evidencias/antes/09_caracterizacao_no_legado.txt`). Os testes rodaram
+(`docs/evidencias/antes/06_caracterizacao_no_legado.txt`). Os testes rodaram
 antes de cada commit da refatoração.
 
 Adições à interface pública: `Teller.add_bundle_offer(products)`, o atributo
@@ -265,11 +265,11 @@ Evidências de execução: `docs/evidencias/depois/01_pytest.txt` e `02_cobertur
 - As três ferramentas rodaram antes e depois, com os mesmos comandos. Versões,
   comandos e saídas estão em `docs/evidencias/`.
 - **Safety:** o comando atual (`safety scan`) exige login em uma conta. A
-  tentativa e a mensagem estão em `08_safety.txt`. O comando antigo
+  tentativa e a mensagem estão em `05_safety.txt`. O comando antigo
   (`safety check`) ainda funciona sem conta, com aviso de descontinuação, e foi
   usado como alternativa.
 - **Escopo do pip-audit e do Safety:** a lista exata de pacotes instalados no
-  ambiente do projeto (`dependencias_instaladas.txt`). As ferramentas de análise
+  ambiente do projeto (`dependencias_instaladas.txt`). As ferramentas de segurança
   ficam em outro ambiente virtual (`venv-ferramentas`), para não entrarem na
   auditoria.
 - **Ponto de atenção sem alerta:** o `requirements.txt` do repositório-base não
@@ -285,13 +285,16 @@ Evidências de execução: `docs/evidencias/depois/01_pytest.txt` e `02_cobertur
 
 ## 10. Sequência das mudanças
 
-Cada etapa ficou em uma branch, com commits pequenos no padrão Conventional Commits:
+Commits pequenos, no padrão Conventional Commits, nesta ordem:
 
-| Ordem | Branch | Conteúdo |
+| Ordem | Etapa | Commits |
 |---|---|---|
-| 1 | `develop` | Ferramentas e linha de base do legado |
-| 2 | `feature/testes-caracterizacao` | Fixtures e testes de caracterização |
-| 3 | `feature/refatoracao-padroes` | Formatação, tipos, nomes, Strategy, Template Method, fábrica, `DiscountCalculator` |
-| 4 | `fix/oferta-dois-por-valor` | Correção isolada do defeito D7 |
-| 5 | `feature/combos-promocionais` | Combos e seus testes |
-| 6 | `feature/evidencias-finais` | Evidências finais, comparativo e documentação |
+| 1 | Linha de base do legado: testes, cobertura e auditorias de segurança | `chore`, `docs` |
+| 2 | Testes de caracterização sobre o código original | `test` |
+| 3 | Refatoração: formatação, tipos, nomes, Strategy, Template Method, fábrica e `DiscountCalculator` | `style`, `refactor`, `test` |
+| 4 | Correção isolada do defeito D7 | `fix` |
+| 5 | Combos promocionais e seus testes | `feat`, `refactor` |
+| 6 | Evidências finais, comparativo e documentação | `docs` |
+
+Os testes foram executados antes de cada commit. Para ver a sequência:
+`git log --oneline c72d68a..HEAD`.

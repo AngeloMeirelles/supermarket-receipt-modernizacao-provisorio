@@ -10,7 +10,7 @@ cadastradas e gera o recibo. Este repositório parte do código original do
 - testes de caracterização do comportamento original;
 - refatoração com os padrões Strategy, Template Method e fábrica;
 - a nova promoção de combos (10% de desconto nos combos completos);
-- evidências de testes, qualidade e segurança, antes e depois.
+- evidências de testes e de segurança, antes e depois.
 
 ## Requisitos
 
@@ -49,10 +49,10 @@ coverage report -m
 
 Resultado atual: 94 testes passando e 100% de cobertura em `src/`.
 
-## Análise de qualidade e segurança
+## Análise de segurança
 
-As ferramentas de análise ficam em um ambiente virtual separado, para que as
-auditorias de dependências considerem apenas os pacotes do projeto:
+O Bandit, o pip-audit e o Safety ficam em um ambiente virtual separado, para
+que as auditorias de dependências considerem apenas os pacotes do projeto:
 
 ```
 python -m venv venv-ferramentas
@@ -65,21 +65,18 @@ Para rodar tudo de uma vez e gravar os resultados em `docs/evidencias/depois/`:
 .\venv\Scripts\python scripts\gerar_evidencias.py depois
 ```
 
-O script executa, nesta ordem: pytest, coverage, Ruff, mypy, Radon, Bandit,
-pip-audit e Safety. Os comandos usados ficam registrados no início de cada
-arquivo gerado. Para rodar uma ferramenta isolada:
+O script executa, nesta ordem: pytest, coverage, Bandit, pip-audit e Safety.
+Os comandos usados ficam registrados no início de cada arquivo gerado. Para
+rodar uma ferramenta isolada:
 
 ```
-.\venv-ferramentas\Scripts\ruff check src tests
-.\venv-ferramentas\Scripts\mypy --strict src
-.\venv-ferramentas\Scripts\radon cc src -s -a
 .\venv-ferramentas\Scripts\bandit -r src
 .\venv-ferramentas\Scripts\pip-audit -r docs\evidencias\depois\dependencias_instaladas.txt --no-deps
 .\venv-ferramentas\Scripts\safety check -r docs\evidencias\depois\dependencias_instaladas.txt
 ```
 
 O comando `safety scan` exige login em uma conta do Safety. A tentativa está
-registrada em `docs/evidencias/depois/08_safety.txt`.
+registrada em `docs/evidencias/depois/05_safety.txt`.
 
 ## Estrutura de pastas
 
@@ -87,7 +84,7 @@ registrada em `docs/evidencias/depois/08_safety.txt`.
 python_pytest/
 ├── README.md
 ├── requirements.txt           dependências do projeto
-├── requirements-dev.txt       ferramentas de análise
+├── requirements-dev.txt       ferramentas de segurança
 ├── pytest.ini
 ├── src/
 │   ├── catalog.py                 catálogo de produtos (acesso ao banco)
