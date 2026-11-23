@@ -213,18 +213,18 @@ def test_two_for_amount_charges_the_offer_price_for_each_pair(
 @pytest.mark.parametrize(
     "quantity, expected_discount, expected_total",
     [
-        (3, 0.105, 2.175),
-        (5, -0.285, 3.165),
+        (3, -0.39, 1.68),
+        (5, -0.78, 2.67),
     ],
 )
-def test_two_for_amount_with_odd_quantity_charges_half_a_pair_extra(
+def test_two_for_amount_with_odd_quantity_charges_leftover_unit_at_unit_price(
     teller, cart, cherry_tomatoes, quantity, expected_discount, expected_total
 ):
-    """DEFEITO DO LEGADO, registrado como está.
+    """DEFEITO DO LEGADO CORRIGIDO (única mudança intencional de comportamento).
 
-    Com quantidade ímpar o sistema cobra "meio par" a mais. Com 3 unidades o
-    total (2,175) fica acima do preço sem oferta (2,07) e o "desconto" é positivo.
-    O valor correto seria 1 par + 1 unidade = 0,99 + 0,69 = 1,68.
+    Com quantidade ímpar o legado cobrava "meio par" a mais: 3 unidades saíam
+    por 2,175, acima do preço sem oferta (2,07), e 5 unidades por 3,165.
+    Agora a unidade que sobra paga o preço normal: 0,99 + 0,69 = 1,68.
     """
     receipt = checkout_with_offer(
         teller, cart, cherry_tomatoes, quantity, SpecialOfferType.TWO_FOR_AMOUNT, 0.99
@@ -446,8 +446,10 @@ def test_printed_receipt_with_all_offer_types(
     )
 
 
-def test_printed_receipt_shows_the_two_for_amount_defect(teller, cart, cherry_tomatoes):
-    """DEFEITO DO LEGADO, registrado como está: o "desconto" aparece positivo."""
+def test_printed_receipt_of_two_for_amount_with_odd_quantity(
+    teller, cart, cherry_tomatoes
+):
+    """DEFEITO DO LEGADO CORRIGIDO: antes o "desconto" saía positivo (0.10)."""
     receipt = checkout_with_offer(
         teller, cart, cherry_tomatoes, 3, SpecialOfferType.TWO_FOR_AMOUNT, 0.99
     )
@@ -455,9 +457,9 @@ def test_printed_receipt_shows_the_two_for_amount_defect(teller, cart, cherry_to
     assert ReceiptPrinter().print_receipt(receipt) == (
         "cherry tomatoes                     2.07\n"
         "  0.69 * 3\n"
-        "2 for 0.99 (cherry tomatoes)        0.10\n"
+        "2 for 0.99 (cherry tomatoes)       -0.39\n"
         "\n"
-        "Total:                              2.17\n"
+        "Total:                              1.68\n"
     )
 
 

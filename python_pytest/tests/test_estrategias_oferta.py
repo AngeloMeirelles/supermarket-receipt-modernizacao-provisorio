@@ -6,7 +6,6 @@ from discount_calculator import DiscountCalculator
 from model_objects import Discount, Offer, SpecialOfferType
 from offer_strategies import (
     IOfferStrategy,
-    LegacyTwoForAmountStrategy,
     NoOfferStrategy,
     PercentDiscountStrategy,
     QuantityForAmountStrategy,
@@ -82,7 +81,7 @@ def test_every_strategy_respects_the_interface_contract(rice, strategy, quantity
     [
         (SpecialOfferType.THREE_FOR_TWO, ThreeForTwoStrategy),
         (SpecialOfferType.TEN_PERCENT_DISCOUNT, PercentDiscountStrategy),
-        (SpecialOfferType.TWO_FOR_AMOUNT, LegacyTwoForAmountStrategy),
+        (SpecialOfferType.TWO_FOR_AMOUNT, QuantityForAmountStrategy),
         (SpecialOfferType.FIVE_FOR_AMOUNT, QuantityForAmountStrategy),
         ("UNKNOWN", NoOfferStrategy),
     ],

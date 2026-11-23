@@ -54,16 +54,14 @@ class QuantityOfferStrategy(IOfferStrategy):
         if whole_units < self._group_size:
             return None
 
+        number_of_groups = whole_units // self._group_size
         leftover_units = whole_units % self._group_size
         price_with_offer = (
-            self._number_of_groups(whole_units) * self._group_price(unit_price)
+            number_of_groups * self._group_price(unit_price)
             + leftover_units * unit_price
         )
         discount_amount = quantity * unit_price - price_with_offer
         return Discount(product, self._description(), -discount_amount)
-
-    def _number_of_groups(self, whole_units: int) -> float:
-        return whole_units // self._group_size
 
     @abc.abstractmethod
     def _group_price(self, unit_price: float) -> float:
@@ -91,7 +89,7 @@ class ThreeForTwoStrategy(QuantityOfferStrategy):
 
 
 class QuantityForAmountStrategy(QuantityOfferStrategy):
-    """Um grupo de unidades por um valor fechado (ex.: 5 unidades por 7,49)."""
+    """Um grupo de unidades por um valor fechado (ex.: 2 por 0,99 ou 5 por 7,49)."""
 
     def __init__(self, group_size: int, amount: float) -> None:
         super().__init__(group_size)
@@ -102,17 +100,3 @@ class QuantityForAmountStrategy(QuantityOfferStrategy):
 
     def _description(self) -> str:
         return f"{self._group_size} for {self._amount}"
-
-
-class LegacyTwoForAmountStrategy(QuantityForAmountStrategy):
-    """Oferta "2 por um valor" exatamente como o legado calcula.
-
-    Reproduz um defeito conhecido: com quantidade ímpar, o número de pares
-    fica fracionado (3 unidades viram 1,5 par) e o cliente paga a mais.
-    """
-
-    def __init__(self, amount: float) -> None:
-        super().__init__(2, amount)
-
-    def _number_of_groups(self, whole_units: int) -> float:
-        return whole_units / self._group_size
