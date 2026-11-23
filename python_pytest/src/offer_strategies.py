@@ -15,6 +15,15 @@ class IOfferStrategy(abc.ABC):
         """Devolve o desconto do produto, ou None quando a oferta não se aplica."""
 
 
+class NoOfferStrategy(IOfferStrategy):
+    """Tipo de oferta não reconhecido: não gera desconto, como no legado."""
+
+    def calculate_discount(
+        self, product: Product, quantity: float, unit_price: float
+    ) -> Discount | None:
+        return None
+
+
 class PercentDiscountStrategy(IOfferStrategy):
     """Desconto percentual sobre o valor total do produto."""
 

@@ -1,12 +1,6 @@
 from catalog import SupermarketCatalog
-from model_objects import Offer, Product, ProductQuantity, SpecialOfferType
-from offer_strategies import (
-    IOfferStrategy,
-    LegacyTwoForAmountStrategy,
-    PercentDiscountStrategy,
-    QuantityForAmountStrategy,
-    ThreeForTwoStrategy,
-)
+from model_objects import Offer, Product, ProductQuantity
+from offer_strategy_factory import OfferStrategyFactory
 from receipt import Receipt
 
 
@@ -45,21 +39,9 @@ class ShoppingCart:
             if product not in offers:
                 continue
 
-            offer = offers[product]
-            unit_price = catalog.unit_price(product)
-            strategy: IOfferStrategy | None = None
-            if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
-                strategy = ThreeForTwoStrategy()
-            elif offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                strategy = PercentDiscountStrategy(offer.argument)
-            elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
-                strategy = LegacyTwoForAmountStrategy(offer.argument)
-            elif offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
-                strategy = QuantityForAmountStrategy(5, offer.argument)
-
-            if strategy is None:
-                continue
-
-            discount = strategy.calculate_discount(product, quantity, unit_price)
-            if discount:
+            strategy = OfferStrategyFactory.create(offers[product])
+            discount = strategy.calculate_discount(
+                product, quantity, catalog.unit_price(product)
+            )
+            if discount is not None:
                 receipt.add_discount(discount)
