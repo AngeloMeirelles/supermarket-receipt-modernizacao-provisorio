@@ -23,7 +23,7 @@ class ShoppingCart:
 
     def add_item_quantity(self, product: Product, quantity: float) -> None:
         self._items.append(ProductQuantity(product, quantity))
-        if product in self._product_quantities.keys():
+        if product in self._product_quantities:
             self._product_quantities[product] = (
                 self._product_quantities[product] + quantity
             )
@@ -36,60 +36,59 @@ class ShoppingCart:
         offers: dict[Product, Offer],
         catalog: SupermarketCatalog,
     ) -> None:
-        for p in self._product_quantities.keys():
-            quantity = self._product_quantities[p]
-            if p in offers.keys():
-                offer = offers[p]
-                unit_price = catalog.unit_price(p)
-                quantity_as_int = int(quantity)
-                discount: Discount | None = None
-                x = 1
-                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
-                    x = 3
+        for product, quantity in self._product_quantities.items():
+            if product not in offers:
+                continue
 
-                elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
-                    x = 2
-                    if quantity_as_int >= 2:
-                        total = (
-                            offer.argument * (quantity_as_int / x)
-                            + quantity_as_int % 2 * unit_price
-                        )
-                        discount_n = unit_price * quantity - total
-                        discount = Discount(
-                            p, "2 for " + str(offer.argument), -discount_n
-                        )
+            offer = offers[product]
+            unit_price = catalog.unit_price(product)
+            whole_units = int(quantity)
+            discount: Discount | None = None
+            group_size = 1
+            if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
+                group_size = 3
 
-                if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
-                    x = 5
-
-                number_of_x = math.floor(quantity_as_int / x)
-                if (
-                    offer.offer_type == SpecialOfferType.THREE_FOR_TWO
-                    and quantity_as_int > 2
-                ):
-                    discount_amount = quantity * unit_price - (
-                        (number_of_x * 2 * unit_price)
-                        + quantity_as_int % 3 * unit_price
+            elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+                group_size = 2
+                if whole_units >= 2:
+                    price_with_offer = (
+                        offer.argument * (whole_units / group_size)
+                        + whole_units % 2 * unit_price
                     )
-                    discount = Discount(p, "3 for 2", -discount_amount)
-
-                if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+                    discount_amount = unit_price * quantity - price_with_offer
                     discount = Discount(
-                        p,
-                        str(offer.argument) + "% off",
-                        -quantity * unit_price * offer.argument / 100.0,
+                        product, "2 for " + str(offer.argument), -discount_amount
                     )
 
-                if (
-                    offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT
-                    and quantity_as_int >= 5
-                ):
-                    discount_total = unit_price * quantity - (
-                        offer.argument * number_of_x + quantity_as_int % 5 * unit_price
-                    )
-                    discount = Discount(
-                        p, str(x) + " for " + str(offer.argument), -discount_total
-                    )
+            if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
+                group_size = 5
 
-                if discount:
-                    receipt.add_discount(discount)
+            number_of_groups = math.floor(whole_units / group_size)
+            if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and whole_units > 2:
+                discount_amount = quantity * unit_price - (
+                    (number_of_groups * 2 * unit_price) + whole_units % 3 * unit_price
+                )
+                discount = Discount(product, "3 for 2", -discount_amount)
+
+            if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+                discount = Discount(
+                    product,
+                    str(offer.argument) + "% off",
+                    -quantity * unit_price * offer.argument / 100.0,
+                )
+
+            if (
+                offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT
+                and whole_units >= 5
+            ):
+                discount_amount = unit_price * quantity - (
+                    offer.argument * number_of_groups + whole_units % 5 * unit_price
+                )
+                discount = Discount(
+                    product,
+                    str(group_size) + " for " + str(offer.argument),
+                    -discount_amount,
+                )
+
+            if discount:
+                receipt.add_discount(discount)

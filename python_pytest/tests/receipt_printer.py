@@ -37,13 +37,13 @@ class ReceiptPrinter:
         return line
 
     def print_price(self, price):
-        return "%.2f" % price
+        return f"{price:.2f}"
 
     def print_quantity(self, item):
         if ProductUnit.EACH == item.product.unit:
             return str(item.quantity)
         else:
-            return "%.3f" % item.quantity
+            return f"{item.quantity:.3f}"
 
     def print_discount(self, discount):
         name = f"{discount.description} ({discount.product.name})"
