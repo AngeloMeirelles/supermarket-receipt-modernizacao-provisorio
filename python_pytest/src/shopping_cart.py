@@ -1,6 +1,6 @@
 from catalog import SupermarketCatalog
+from discount_calculator import DiscountCalculator
 from model_objects import Offer, Product, ProductQuantity
-from offer_strategy_factory import OfferStrategyFactory
 from receipt import Receipt
 
 
@@ -35,13 +35,7 @@ class ShoppingCart:
         offers: dict[Product, Offer],
         catalog: SupermarketCatalog,
     ) -> None:
-        for product, quantity in self._product_quantities.items():
-            if product not in offers:
-                continue
-
-            strategy = OfferStrategyFactory.create(offers[product])
-            discount = strategy.calculate_discount(
-                product, quantity, catalog.unit_price(product)
-            )
-            if discount is not None:
-                receipt.add_discount(discount)
+        """Mantido por compatibilidade: o cálculo é feito pelo DiscountCalculator."""
+        calculator = DiscountCalculator(catalog)
+        for discount in calculator.product_discounts(self._product_quantities, offers):
+            receipt.add_discount(discount)
