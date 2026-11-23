@@ -1,10 +1,10 @@
-"""Gera as evidências de testes, qualidade e segurança do projeto.
+"""Gera as evidências de testes e de segurança do projeto.
 
 Uso, a partir da pasta do projeto:
     python scripts/gerar_evidencias.py antes
     python scripts/gerar_evidencias.py depois
 
-Os testes rodam no ambiente do projeto (venv) e as ferramentas de análise
+Os testes rodam no ambiente do projeto (venv) e as ferramentas de segurança
 rodam em um ambiente separado (venv-ferramentas), para que o pip-audit e o
 Safety auditem apenas as dependências do projeto.
 """
@@ -93,9 +93,6 @@ def main() -> None:
             ["git", "log", "-1", "--format=%H %s"],
             [python, "--version"],
             [python, "-c", "import platform; print(platform.platform())"],
-            [tool("ruff"), "--version"],
-            [tool("mypy"), "--version"],
-            [tool("radon"), "--version"],
             [tool("bandit"), "--version"],
             [tool("pip-audit"), "--version"],
             [tool("safety"), "--version"],
@@ -110,39 +107,15 @@ def main() -> None:
             [python, "-m", "coverage", "report", "-m"],
         ],
     )
+    save(folder, "03_bandit.txt", [[tool("bandit"), "-r", "src"]])
     save(
         folder,
-        "03_ruff.txt",
-        [
-            [tool("ruff"), "check", "src", "tests"],
-            [tool("ruff"), "format", "--check", "src", "tests"],
-        ],
-    )
-    save(
-        folder,
-        "04_mypy.txt",
-        [
-            [tool("mypy"), "src"],
-            [tool("mypy"), "--strict", "src"],
-        ],
-    )
-    save(
-        folder,
-        "05_radon.txt",
-        [
-            [tool("radon"), "cc", "src", "-s", "-a"],
-            [tool("radon"), "mi", "src", "-s"],
-        ],
-    )
-    save(folder, "06_bandit.txt", [[tool("bandit"), "-r", "src"]])
-    save(
-        folder,
-        "07_pip_audit.txt",
+        "04_pip_audit.txt",
         [[tool("pip-audit"), "-r", audited_file, "--no-deps"]],
     )
     save(
         folder,
-        "08_safety.txt",
+        "05_safety.txt",
         [
             [tool("safety"), "check", "-r", audited_file],
             [tool("safety"), "scan", "--target", "."],

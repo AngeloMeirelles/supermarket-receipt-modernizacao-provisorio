@@ -9,7 +9,7 @@ class SupermarketCatalog:
 
     # A exceção genérica foi mantida para não alterar o comportamento do legado.
     def add_product(self, product: Product, price: float) -> None:
-        raise Exception(DATABASE_ACCESS_MESSAGE)  # noqa: TRY002
+        raise Exception(DATABASE_ACCESS_MESSAGE)
 
     def unit_price(self, product: Product) -> float:
-        raise Exception(DATABASE_ACCESS_MESSAGE)  # noqa: TRY002
+        raise Exception(DATABASE_ACCESS_MESSAGE)
