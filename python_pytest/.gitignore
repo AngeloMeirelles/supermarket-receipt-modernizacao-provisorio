@@ -2,3 +2,8 @@ venv
 .pytest_cache
 __pycache__
 .idea
+.venv
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
