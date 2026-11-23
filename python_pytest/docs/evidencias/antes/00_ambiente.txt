@@ -1,0 +1,64 @@
+$ git rev-parse --abbrev-ref HEAD
+# executado em 2026-11-23 19:03:32 | código de saída: 0
+
+develop
+
+
+$ git log -1 --format=%H %s
+# executado em 2026-11-23 19:03:32 | código de saída: 0
+
+274d581effed422ae27512226ba1ba77744dbe3b chore: ignora artefatos de cobertura e analise estatica
+
+
+$ python --version
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+Python 3.11.5
+
+
+$ python -c import platform; print(platform.platform())
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+Windows-10-10.0.19045-SP0
+
+
+$ ruff --version
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+ruff 0.17.6
+
+
+$ mypy --version
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+mypy 2.4.1 (compiled: yes)
+
+
+$ radon --version
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+6.0.1
+
+
+$ bandit --version
+# executado em 2026-11-23 19:03:33 | código de saída: 0
+
+bandit 1.9.4
+  python version = 3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit (AMD64)]
+
+
+$ pip-audit --version
+# executado em 2026-11-23 19:03:34 | código de saída: 0
+
+pip-audit 2.10.1
+
+
+$ safety --version
+# executado em 2026-11-23 19:03:35 | código de saída: 0
+
+safety, version 3.8.1
+D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\safety\auth\main.py:5: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose.errors import ExpiredTokenError
+D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv-ferramentas\Lib\site-packages\authlib\integrations\httpx_client\assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+  from ._compat import httpx2
