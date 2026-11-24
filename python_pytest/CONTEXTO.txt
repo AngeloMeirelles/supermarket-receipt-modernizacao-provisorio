@@ -1,0 +1,522 @@
+CONTEXTO DO TRABALHO - SUPERMARKET RECEIPT (MODERNIZAÇÃO DE SISTEMA LEGADO)
+==========================================================================
+
+Nota de continuidade, escrita em 23/11/2026. Reúne o que é preciso saber para
+retomar o trabalho em outra máquina ou por outra pessoa do grupo: o que o
+enunciado pede, o que já está pronto, como rodar, as decisões tomadas e o que
+falta.
+
+ATENÇÃO: este arquivo é uma nota de trabalho temporária. Não faz parte da
+entrega. Remover antes de migrar para o repositório definitivo do grupo.
+
+
+1. O TRABALHO
+-------------
+
+Disciplina: Alta Qualidade de Software. Professor: Leonardo Cardia.
+Título: "Trabalho Prático - Modernização de Sistema Legado | Supermarket
+Receipt". Trabalho em grupo.
+
+Repositório-base: SupermarketReceipt-Refactoring-Kata (emilybache), versão
+python_pytest, branch main. O código original é o ponto de partida.
+
+O PDF do enunciado e os slides das aulas NÃO estão no repositório. O resumo
+abaixo cobre o enunciado inteiro.
+
+1.1 Resumo
+
+A equipe atua como consultoria que moderniza, de forma incremental, um sistema
+de supermercado (carrinho, preços, promoções, recibo). É preciso: entender o
+comportamento atual, diagnosticar problemas, registrar requisitos e riscos,
+criar testes de caracterização, refatorar com pelo menos dois padrões de
+projeto, implementar combos promocionais e avaliar a segurança com Bandit,
+pip-audit e Safety. O objetivo NÃO é reescrever o sistema do zero.
+
+1.2 Restrições obrigatórias
+
+- Preservar as regras comerciais existentes: cálculos, ofertas, descontos e
+  valores exibidos no recibo.
+- Preservar o contrato observável das interfaces públicas existentes. Mudanças
+  internas devem ser justificadas.
+- Não substituir o programa por uma solução nova, independente do legado.
+- Implementar os combos e cobrir casos normais e de borda.
+- Pelo menos dois padrões de projeto com aplicação real e justificativa.
+  Padrões artificiais não são valorizados.
+- Executar Bandit, pip-audit e Safety, registrar e analisar os resultados.
+- Testes de caracterização antes de alterações que possam mudar regras.
+- Não adotar soluções prontas nem a branch do kata que já vem com testes
+  (with_tests) no lugar do trabalho de caracterização.
+
+1.3 Regra nova: combos promocionais
+
+Um combo é um conjunto definido de produtos. Quando o cliente compra todos os
+produtos do combo, aplica-se 10% de desconto APENAS sobre o valor dos itens que
+formam combos completos.
+
+  Situação                        Esperado
+  1 escova + 1 creme dental       10% sobre os dois produtos
+  2 escovas + 1 creme dental      desconto em 1 combo; a escova a mais paga
+                                  preço normal
+  2 escovas + 2 cremes dentais    desconto em 2 combos completos
+  Somente 1 escova                sem desconto de combo
+  Carrinho com promoções antigas  manter o comportamento anterior e evitar
+                                  desconto indevido ou duplicado no mesmo
+                                  conjunto de itens
+
+Exemplo do enunciado: escova 10,00 + creme dental 15,00 = 25,00; o combo recebe
+2,50 de desconto e fica 22,50. Os preços do repositório podem ser outros; o
+critério obrigatório é a regra dos 10%.
+
+A documentação deve explicar o tratamento de múltiplos combos e a convivência
+com outras ofertas, e esses cenários devem ter testes.
+
+1.4 Passos do enunciado
+
+1 leitura e compreensão; 2 execução inicial (registrar comandos e ambiente);
+3 diagnóstico técnico (citar arquivos e trechos); 4 requisitos RF/RNF com
+critérios verificáveis; 5 plano de contingência (riscos, ordem, reversão,
+critérios de aceitação, invariantes); 6 testes de caracterização; 7 linha de
+base de segurança; 8 refatoração com padrões (desenho antes/depois);
+9 combos; 10 testes de regressão; 11 reavaliação de segurança; 12 entrega e
+defesa.
+
+1.5 Entregáveis
+
+Documentos em docs/, testes em tests/.
+
+  5.1  Relatório de diagnóstico técnico
+  5.2  Documento de requisitos (RF01..., RNF01..., critérios de aceitação para
+       combo completo, incompleto, repetido, excedentes e regressão)
+  5.3  Plano de contingência e refatoração
+  5.4  Código refatorado
+  5.5  Padrões de projeto (nomear, justificar, diagrama de classes
+       simplificado, trechos antes/depois, testes relacionados)
+  5.6  Implementação dos combos
+  5.7  Testes automatizados com pytest
+  5.8  Análise de segurança (as três ferramentas, antes e depois, com versões,
+       escopo, comandos, triagem dos alertas e comparação; se o Safety exigir
+       conta, incluir a evidência da tentativa)
+  5.9  Evidências, README e organização
+  5.10 Apresentação de 10 a 15 minutos: problema inicial, plano, princípios
+       SOLID, padrões, regra de combos, resultados de teste e segurança
+
+Estrutura recomendada pelo enunciado (ilustrativa):
+
+  supermarket-receipt-modernizacao/
+    README.md
+    codigo (ou estrutura original preservada)
+    tests/  test_comportamento_legado.py, test_combos.py
+    docs/   diagnostico_tecnico.pdf, requisitos.pdf, plano_contingencia.pdf,
+            padroes_projeto.pdf, seguranca_antes_depois.pdf,
+            evidencias_testes.pdf
+    apresentacao/ slides.pdf
+
+Documentação "inspirada no MPS.BR": contexto e diagnóstico, requisitos, riscos
+e contingência, testes e validação, padrões e arquitetura, segurança, lições
+aprendidas.
+
+1.6 Barema (10,0 pontos)
+
+  Diagnóstico técnico                  1,0
+  Documentação de requisitos           1,0
+  Plano de contingência                0,5
+  Código refatorado                    2,0
+  Padrões de projeto, SOLID, Clean Code 2,0
+  Combos promocionais                  0,5
+  Testes automatizados                 1,0
+  Bandit, pip-audit e Safety           1,0
+  Evidências de execução               0,5
+  README e organização                 0,5
+
+Penalidades:
+
+  Sem diagnóstico técnico                         -3,0
+  Sem plano de contingência                       -3,0
+  Sem testes automatizados                        -3,0
+  Código final não executa                        nota máxima 5,0
+  Quebra injustificada de regra ou interface      -2,0
+  Regra de combos incorreta ou ausente            -2,0
+  Sem os dois padrões                             zero no critério de padrões
+  Sem a análise das três ferramentas              zero no critério de segurança
+
+Orientações de qualidade: commits pequenos seguindo a convenção; rastreabilidade
+requisito -> implementação -> teste -> evidência; alerta de segurança não é
+automaticamente vulnerabilidade explorável; ausência de alertas não prova
+segurança total; não adicionar dependências só para gerar resultados; informar
+versões das ferramentas e limitações do ambiente.
+
+
+2. DIVISÃO DO TRABALHO
+----------------------
+
+Esta frente cuidou do código: testes, refatoração, combos, evidências, README e
+o registro das decisões técnicas. Está concluída.
+
+O restante do grupo cuida dos relatórios em PDF (docs/) e dos slides. A
+matéria-prima para eles é docs/decisoes_tecnicas.md e docs/evidencias/.
+
+
+3. ESTADO ATUAL
+---------------
+
+Repositório (provisório, público, só a branch main):
+https://github.com/AngeloMeirelles/supermarket-receipt-modernizacao
+
+É provisório: o grupo vai passar tudo, já organizado, para outro repositório.
+
+A estrutura é a mesma do kata original. O trabalho está na pasta python_pytest.
+As demais pastas e o README da raiz são do kata e não foram alterados.
+
+Commit do kata usado como base: c72d68a.
+Sobre ele há 23 commits do trabalho (lista na seção 11), mais o commit deste
+arquivo. Último commit de código e documentação: b0e88e9.
+
+Resultados no código final:
+
+  Testes                 94, todos passando (antes: 1)
+  Cobertura de src/      100% (antes: 71%; shopping_cart.py tinha 41%)
+  Bandit                 0 alertas (antes e depois)
+  pip-audit              0 vulnerabilidades em 24 pacotes (antes e depois)
+  Safety (check)         0 vulnerabilidades em 24 pacotes (antes e depois)
+  Safety (scan)          exige login; tentativa registrada nas evidências
+
+Ambiente em que tudo foi feito: Windows 10, Python 3.11.5, pytest 9.2.0,
+coverage 7.17.5, Bandit 1.9.4, pip-audit 2.10.1, Safety 3.8.1.
+
+
+4. COMO RODAR EM OUTRA MÁQUINA
+------------------------------
+
+Precisa de Git e Python 3.10 ou superior (o código usa a sintaxe "X | None").
+
+  git clone https://github.com/AngeloMeirelles/supermarket-receipt-modernizacao.git
+  cd supermarket-receipt-modernizacao\python_pytest
+
+  python -m venv venv
+  .\venv\Scripts\activate
+  python -m pip install -r requirements.txt
+
+  pytest
+  coverage run --source=src -m pytest
+  coverage report -m
+
+Esperado: 94 passed e 100% de cobertura.
+
+Ferramentas de segurança (ambiente separado, para não entrarem na auditoria das
+dependências do projeto):
+
+  python -m venv venv-ferramentas
+  .\venv-ferramentas\Scripts\python -m pip install -r requirements-dev.txt
+
+Gerar as evidências de novo (pytest, coverage, Bandit, pip-audit, Safety):
+
+  .\venv\Scripts\python scripts\gerar_evidencias.py depois
+
+Cuidados com as evidências:
+
+- Só gerar de novo se o código mudar. Os arquivos de docs/evidencias/depois
+  registram ambiente, data e versões. Gerar em outra máquina troca esses dados
+  e, como o requirements.txt não fixa versões, pode trocar também as versões
+  das bibliotecas auditadas.
+- docs/evidencias/antes foi gerado sobre o código original e não deve ser
+  sobrescrito. O arquivo 06_caracterizacao_no_legado.txt mostra os testes de
+  caracterização rodando no código original. Para reproduzir: o commit ac38bac
+  tem src/ idêntico ao original mais os testes de caracterização
+  (git worktree add ../../legado-original ac38bac, e pytest dentro dele).
+- Depois de gerar, conferir se nenhum arquivo ficou com caminho de pasta
+  pessoal ou temporária que não deva ir para o repositório.
+
+venv, venv-ferramentas, .coverage e htmlcov estão no .gitignore.
+
+
+5. COMO O CÓDIGO FICOU
+----------------------
+
+Pasta python_pytest:
+
+  src/catalog.py                 SupermarketCatalog: catálogo real (acessa o
+                                 banco; nos testes é trocado pelo FakeCatalog)
+  src/model_objects.py           Product, ProductQuantity, ProductUnit,
+                                 SpecialOfferType, Offer, Discount e Bundle
+  src/receipt.py                 Receipt e ReceiptItem
+  src/shopping_cart.py           ShoppingCart: guarda os itens; handle_offers
+                                 foi mantido e repassa para a calculadora
+  src/teller.py                  Teller (caixa): cadastra ofertas e combos e
+                                 fecha a compra
+  src/offer_strategies.py        regras de cálculo de cada oferta (Strategy e
+                                 Template Method)
+  src/offer_strategy_factory.py  escolhe a regra pelo tipo da oferta (fábrica)
+  src/discount_calculator.py     calcula os descontos por produto e de combos
+
+  tests/conftest.py                   fixtures: produtos, catálogo, caixa, carrinho
+  tests/fake_catalog.py               catálogo falso (do kata)
+  tests/receipt_printer.py            impressão do recibo (do kata)
+  tests/test_supermarket.py           teste original do kata (1)
+  tests/test_comportamento_legado.py  caracterização (45)
+  tests/test_estrategias_oferta.py    estratégias, fábrica, calculadora (21)
+  tests/test_combos.py                combos (27)
+
+  scripts/gerar_evidencias.py    roda tudo e grava em docs/evidencias/<fase>
+  requirements.txt               dependências do projeto (igual ao kata)
+  requirements-dev.txt           bandit, pip-audit, safety (versões fixas)
+  docs/decisoes_tecnicas.md      diagnóstico, padrões, SOLID, diagramas,
+                                 combos, defeito corrigido, rastreabilidade
+  docs/evidencias/antes, depois  saídas das ferramentas
+  docs/evidencias/comparativo_antes_depois.md
+
+Caminho de uma compra:
+
+  1. Teller.checks_out_articles_from(cart) cria o Receipt e adiciona cada item
+     com o preço do catálogo.
+  2. Chama cart.handle_offers(receipt, offers, catalog), que cria um
+     DiscountCalculator e pede product_discounts(...).
+  3. Para cada produto do carrinho com oferta cadastrada, a calculadora pede à
+     OfferStrategyFactory a estratégia daquele tipo de oferta e chama
+     calculate_discount(product, quantity, unit_price).
+  4. Depois o Teller aplica os combos (método interno _apply_bundles), usando
+     DiscountCalculator.bundle_discounts(...).
+  5. Os descontos entram no recibo: primeiro os individuais, depois os de combo.
+
+Classes de src/offer_strategies.py:
+
+  IOfferStrategy              interface (abc.ABC) com calculate_discount;
+                              devolve um Discount ou None
+  NoOfferStrategy             tipo de oferta desconhecido: sem desconto
+  PercentDiscountStrategy     desconto percentual; texto "<percentual>% off"
+  QuantityOfferStrategy       base das ofertas por quantidade; o método
+                              calculate_discount fixa os passos e as subclasses
+                              informam _group_price e _description
+  ThreeForTwoStrategy         leve 3, pague 2; texto "3 for 2"
+  QuantityForAmountStrategy   N unidades por um valor (N = 2 ou 5); texto
+                              "2 for 0.99", "5 for 7.49"
+
+Padrões aplicados (detalhes e justificativas em docs/decisoes_tecnicas.md,
+seção 3):
+
+  Strategy          IOfferStrategy e suas classes
+  Template Method   QuantityOfferStrategy.calculate_discount
+  Fábrica simples   OfferStrategyFactory.create(offer). Atenção ao nome: é uma
+                    fábrica simples com método estático, NÃO o Factory Method
+                    do catálogo GoF. Os dois padrões que contam para o
+                    requisito são Strategy e Template Method; a fábrica é
+                    apoio.
+
+SOLID: tabela na seção 4 de docs/decisoes_tecnicas.md.
+
+
+6. O QUE FOI PRESERVADO
+-----------------------
+
+Interfaces públicas com a mesma assinatura: Teller(catalog),
+add_special_offer(offer_type, product, argument),
+checks_out_articles_from(the_cart), product_with_name(name), atributos catalog
+e offers; ShoppingCart com items, product_quantities, add_item,
+add_item_quantity e handle_offers(receipt, offers, catalog); Receipt,
+ReceiptItem, Product, ProductQuantity, ProductUnit, SpecialOfferType, Offer,
+Discount e SupermarketCatalog.
+
+Comportamentos preservados: valores dos itens; valores e textos dos descontos;
+ordem dos descontos no recibo; formato do recibo impresso; uma oferta nova para
+o mesmo produto substitui a anterior; tipo de oferta desconhecido é ignorado
+sem erro; o catálogo real continua lançando Exception genérica.
+
+Comportamento estranho do legado que foi MANTIDO de propósito: nas ofertas por
+quantidade, a fração de um produto vendido por peso não é cobrada (3,5 kg no
+"leve 3, pague 2" custam o mesmo que 2 kg). Está registrado em teste e no
+diagnóstico (item D8).
+
+Também mantidos: o nome TEN_PERCENT_DISCOUNT, embora aceite qualquer
+percentual; e o requirements.txt sem versões fixas, como no kata.
+
+Adições (nada foi removido): Teller.add_bundle_offer(products), Teller.bundles
+e a classe Bundle.
+
+
+7. ÚNICA MUDANÇA DE COMPORTAMENTO: DEFEITO DO "2 POR VALOR"
+-----------------------------------------------------------
+
+No código original, a oferta TWO_FOR_AMOUNT usava divisão comum onde deveria
+contar pares inteiros. Com quantidade ímpar, o cliente pagava mais do que sem
+oferta.
+
+Tomate-cereja a 0,69, oferta "2 por 0,99":
+
+  Quantidade   Sem oferta   Legado cobrava   Agora cobra
+  2            1,38         0,99             0,99
+  3            2,07         2,175            1,68
+  4            2,76         1,98             1,98
+  5            3,45         3,165            2,67
+
+Como foi tratado: o defeito foi primeiro registrado em teste como estava;
+durante a refatoração foi mantido de propósito; a correção ficou em um commit
+isolado (6efe9d6, "fix: corrige cobranca a mais na oferta 2 por valor com
+quantidade impar"), junto com os 3 testes afetados.
+
+Para desfazer: git revert 6efe9d6 restaura o comportamento do legado sem tocar
+no resto.
+
+PENDENTE DE VALIDAÇÃO: a correção muda um valor que o sistema antigo exibia. A
+justificativa está documentada, mas convém confirmar com o professor se ele
+considera isso correção de defeito ou quebra de regra existente.
+
+
+8. COMBOS: DECISÕES TOMADAS
+---------------------------
+
+Uso: teller.add_bundle_offer([toothbrush, toothpaste])
+
+  C1  O desconto aparece em uma linha por produto, com o texto
+      "bundle 10% off".
+  C2  A quantidade de combos é a do produto mais escasso. O excedente paga
+      preço normal.
+  C3  Produto com oferta individual cadastrada não participa de combos.
+  C4  A regra C3 vale mesmo quando a oferta individual não é atingida pela
+      quantidade.
+  C5  Combos diferentes que compartilham um produto: cada unidade entra em um
+      único combo, na ordem de cadastro.
+  C6  Só unidades inteiras formam combo. Em produto por peso, a fração paga
+      preço normal.
+  C7  Um combo precisa de pelo menos dois produtos diferentes (senão,
+      ValueError).
+  C8  Os descontos de combo vêm depois dos individuais no recibo.
+
+Limitação conhecida: um combo não aceita duas unidades do mesmo produto
+("2 escovas + 1 creme dental" como um combo só).
+
+PENDENTE DE VALIDAÇÃO: C3 e C4 são a resposta escolhida para "convivência com
+outras ofertas". O enunciado deixa a escolha para a equipe; vale confirmar com
+o grupo e, se possível, com o professor.
+
+Cada decisão tem teste em tests/test_combos.py (nomes na seção 6 de
+docs/decisoes_tecnicas.md).
+
+
+9. VERIFICAÇÕES FEITAS DURANTE O DESENVOLVIMENTO
+------------------------------------------------
+
+Além dos testes versionados, foram feitas conferências pontuais. Os scripts
+usados NÃO estão no repositório; por isso, não citar estes números em relatório
+sem refazer a conferência.
+
+- 20.000 carrinhos aleatórios calculados pelo código original e pelo novo:
+  18.054 com resultado idêntico; 1.946 diferentes, todos explicados pela
+  correção do "2 por valor"; nenhuma diferença inesperada.
+- Comparação das classes e membros públicos antes e depois: nada removido nem
+  alterado; só as adições da seção 6.
+- Alterações propositais no código para ver se os testes falhavam. Uma delas
+  mostrou um teste fraco de combo com produto por peso, que foi reforçado.
+- Execução do README do zero em uma cópia limpa: 94 testes passando.
+
+
+10. CONVENÇÕES ADOTADAS
+-----------------------
+
+- Identificadores do código em inglês, como no kata. Docstrings, mensagens de
+  commit e documentos em português.
+- Commits pequenos, um assunto por commit, no padrão Conventional Commits, em
+  português, minúsculas e sem acentos no título (ex.: "fix: corrige ...").
+  Tipos usados: chore, docs, test, style, refactor, fix, feat.
+- Mensagem de commit só com o título (e corpo, se precisar). Sem trailers
+  como Co-authored-by ou Signed-off-by.
+- Autor dos commits: AngeloMeirelles <angelomeirellles@gmail.com>. O e-mail
+  tem três letras "l" mesmo. Em máquina nova, configurar só no repositório:
+    git config user.name "AngeloMeirelles"
+    git config user.email "angelomeirellles@gmail.com"
+- Rodar os testes antes de cada commit.
+- Escopo: fazer somente o que o enunciado pede. O material das aulas serve de
+  contexto, não de requisito extra. Exemplo do que NÃO repetir: Ruff, mypy e
+  Radon chegaram a ser incluídos e foram retirados por estarem fora do
+  enunciado.
+- Não adicionar dependências ao projeto.
+- Não mexer nas interfaces públicas nem nos valores do recibo sem justificar.
+- Arquivos do repositório só com conteúdo do trabalho: sem rascunhos, sem
+  anotações de processo e sem caminhos de pastas pessoais ou temporárias.
+- Estilo dos documentos: frases curtas e diretas, linguagem simples.
+
+
+11. HISTÓRICO DE COMMITS
+------------------------
+
+Do mais antigo para o mais recente, sobre o commit c72d68a do kata:
+
+  274d581  chore: ignora artefatos de cobertura e analise estatica
+  2339045  chore: adiciona script e ferramentas de analise de qualidade e seguranca
+  fbdc140  docs: registra linha de base de testes, qualidade e seguranca do legado
+  6ca67ab  test: adiciona fixtures compartilhadas de produtos, catalogo e caixa
+  ac38bac  test: adiciona testes de caracterizacao do comportamento legado
+  e1d1147  style: aplica formatacao e ordenacao de imports com ruff
+  9871ab2  refactor: adiciona type hints as classes do sistema
+  f30120d  refactor: melhora nomes de variaveis e remove duplicacoes simples
+  0927ad1  refactor: extrai desconto percentual para uma estrategia de oferta
+  1a4b98f  refactor: extrai ofertas por quantidade com template method
+  e5bb6fa  refactor: cria fabrica para selecionar a estrategia de cada oferta
+  edbc8d5  refactor: move calculo de descontos do carrinho para DiscountCalculator
+  e9bf69c  test: adiciona testes unitarios das estrategias, da fabrica e da calculadora
+  6efe9d6  fix: corrige cobranca a mais na oferta 2 por valor com quantidade impar
+  6e335da  feat: adiciona promocao de combos com 10% de desconto nos combos completos
+  c5c47b7  refactor: divide calculo dos combos em metodos menores
+  49e5c12  refactor: usa tabela de tamanhos de grupo na fabrica de estrategias
+  78ae739  docs: registra evidencias finais de testes, qualidade e seguranca
+  a3b64d3  docs: adiciona comparativo antes e depois e registro das decisoes tecnicas
+  81a500f  docs: atualiza README com ambiente, execucao e decisoes arquiteturais
+  f7ae511  chore: mantem apenas as analises pedidas no enunciado
+  9d8191f  docs: registra evidencias finais de testes e seguranca
+  b0e88e9  docs: ajusta README e documentos ao escopo do enunciado
+
+Observação: o histórico mostra a entrada de Ruff, mypy e Radon (por exemplo
+em 2339045, e1d1147 e 78ae739) e a retirada (f7ae511). Os arquivos finais não têm mais nada
+dessas ferramentas. A formatação e os type hints ficaram no código.
+
+
+12. O QUE FALTA
+---------------
+
+12.1 Revisão guiada do código (próximo passo combinado)
+
+Passar pelo trabalho parte por parte, em linguagem simples, para que todos
+consigam explicar e defender na apresentação. Ordem sugerida:
+
+  1. Como o sistema funciona e quais eram os problemas do legado
+  2. O que são testes de caracterização e como foram feitos
+  3. O padrão Strategy no código
+  4. Template Method e a fábrica
+  5. O defeito do "2 por valor" e a correção isolada
+  6. Combos e as regras de convivência
+  7. Evidências e ferramentas de segurança
+  8. A sequência de commits no Git
+
+Ainda não foi iniciada.
+
+12.2 Documentos do grupo (ainda não estão no repositório)
+
+  docs/diagnostico_tecnico.pdf     base: decisoes_tecnicas.md seção 1 e
+                                   docs/evidencias/antes
+  docs/requisitos.pdf              RF/RNF ainda NÃO foram escritos. Base:
+                                   seções 2, 6 e 8 de decisoes_tecnicas.md e a
+                                   tabela de combos do enunciado
+  docs/plano_contingencia.pdf      base: seções 2, 7 e 10 (interfaces que não
+                                   mudam, reversão por git revert, sequência)
+  docs/padroes_projeto.pdf         base: seções 3, 4 e 5 (os diagramas estão
+                                   em Mermaid e precisam virar imagem)
+  docs/seguranca_antes_depois.pdf  base: seção 9, comparativo e os arquivos
+                                   03, 04 e 05 das evidências
+  docs/evidencias_testes.pdf       base: comparativo e os arquivos 01, 02 e 06
+  apresentacao/slides.pdf          10 a 15 minutos, incluindo SOLID
+  Lições aprendidas                ainda não escritas
+
+O texto de docs/decisoes_tecnicas.md fala em "decisões tomadas pelo grupo". O
+grupo precisa ler e concordar, ou ajustar.
+
+12.3 Migração para o repositório definitivo
+
+- Decidir se vai o histórico completo de commits ou só o resultado final. O
+  enunciado valoriza commits pequenos, então o histórico ajuda; por outro lado
+  ele mostra a entrada e a saída de Ruff, mypy e Radon (seção 11).
+- Decidir onde fica o README principal. Hoje o README do trabalho é
+  python_pytest/README.md e o da raiz é o do kata.
+- Remover este CONTEXTO.txt.
+
+12.4 Validar com o professor
+
+- A correção do defeito do "2 por valor" (seção 7).
+- A regra de convivência entre combo e oferta individual (seção 8, C3 e C4).
