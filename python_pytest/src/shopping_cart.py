@@ -2,6 +2,12 @@ import math
 
 from model_objects import ProductQuantity, SpecialOfferType, Discount
 
+THREE_FOR_TWO_GROUP_SIZE = 3
+THREE_FOR_TWO_PAID_UNITS = 2
+TWO_FOR_AMOUNT_GROUP_SIZE = 2
+FIVE_FOR_AMOUNT_GROUP_SIZE = 5
+PERCENT_BASE = 100.0
+
 
 class ShoppingCart:
 
@@ -37,31 +43,31 @@ class ShoppingCart:
                 discount = None
                 group_size = 1
                 if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
-                    group_size = 3
+                    group_size = THREE_FOR_TWO_GROUP_SIZE
 
                 elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
-                    group_size = 2
-                    if quantity_as_int >= 2:
-                        total_with_offer = offer.argument * (quantity_as_int / group_size) + quantity_as_int % 2 * unit_price
+                    group_size = TWO_FOR_AMOUNT_GROUP_SIZE
+                    if quantity_as_int >= TWO_FOR_AMOUNT_GROUP_SIZE:
+                        total_with_offer = offer.argument * (quantity_as_int / group_size) + quantity_as_int % TWO_FOR_AMOUNT_GROUP_SIZE * unit_price
                         discount_amount = unit_price * quantity - total_with_offer
                         discount = Discount(product, "2 for " + str(offer.argument), -discount_amount)
 
                 if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
-                    group_size = 5
+                    group_size = FIVE_FOR_AMOUNT_GROUP_SIZE
 
                 number_of_groups = math.floor(quantity_as_int / group_size)
-                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and quantity_as_int > 2:
+                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and quantity_as_int >= THREE_FOR_TWO_GROUP_SIZE:
                     discount_amount = quantity * unit_price - (
-                                (number_of_groups * 2 * unit_price) + quantity_as_int % 3 * unit_price)
+                                (number_of_groups * THREE_FOR_TWO_PAID_UNITS * unit_price) + quantity_as_int % THREE_FOR_TWO_GROUP_SIZE * unit_price)
                     discount = Discount(product, "3 for 2", -discount_amount)
 
                 if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
                     discount = Discount(product, str(offer.argument) + "% off",
-                                        -quantity * unit_price * offer.argument / 100.0)
+                                        -quantity * unit_price * offer.argument / PERCENT_BASE)
 
-                if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and quantity_as_int >= 5:
+                if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and quantity_as_int >= FIVE_FOR_AMOUNT_GROUP_SIZE:
                     discount_amount = unit_price * quantity - (
-                                offer.argument * number_of_groups + quantity_as_int % 5 * unit_price)
+                                offer.argument * number_of_groups + quantity_as_int % FIVE_FOR_AMOUNT_GROUP_SIZE * unit_price)
                     discount = Discount(product, str(group_size) + " for " + str(offer.argument), -discount_amount)
 
                 if discount:
