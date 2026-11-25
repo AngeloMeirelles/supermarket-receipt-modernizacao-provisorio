@@ -229,7 +229,7 @@ Os dois itens abaixo foram encontrados na leitura do código e ficam aqui só re
 tratamento de cada um, manter ou corrigir com justificativa, é definido no plano de
 contingência.
 
-#### D12. Na oferta "2 por valor", quantidade ímpar custa mais do que sem oferta
+#### D12. Na oferta "2 por valor", quantidade ímpar é cobrada a mais
 
 Onde: `src/shopping_cart.py`, linha 45.
 
@@ -242,14 +242,17 @@ sobra é cobrada duas vezes: meio par no preço da oferta e mais uma unidade no 
 
 Exemplo com tomate-cereja a 0,69 e a oferta "2 por 0,99":
 
-| Quantidade | Sem oferta | O código cobra |
-|---|---|---|
-| 2 | 1,38 | 0,99 |
-| 3 | 2,07 | 2,175 |
-| 4 | 2,76 | 1,98 |
-| 5 | 3,45 | 3,165 |
+| Quantidade | Sem oferta | O código cobra | Cobrança certa |
+|---|---|---|---|
+| 2 | 1,38 | 0,99 | 0,99 |
+| 3 | 2,07 | 2,175 | 1,68 |
+| 4 | 2,76 | 1,98 | 1,98 |
+| 5 | 3,45 | 3,165 | 2,67 |
 
-Com 3 e com 5 unidades, o "desconto" fica positivo e aumenta o total.
+A cobrança certa é cada par pelo valor da oferta e a unidade que sobra pelo preço normal. Com
+quantidade ímpar, o código cobra 0,495 a mais do que o certo, que é metade do valor de um par.
+Com 3 unidades, o total passa até do preço sem oferta: o "desconto" fica positivo e aumenta o
+total.
 
 #### D13. Fração de produto vendido por peso não é cobrada nas ofertas por quantidade
 
