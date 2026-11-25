@@ -1,0 +1,93 @@
+Auditoria das dependências com Safety - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+Ferramenta: Safety 3.8.1, instalada em ambiente separado (D:\faculdade\alta-qualidade-av3\venv-ferramentas), fora do projeto
+Escopo: as mesmas 24 bibliotecas de dependencias_projeto.txt (ver 06_pip_audit.txt)
+Limitação: o comando novo, safety scan, exige conta no serviço Safety. A tentativa foi feita sem conta e com entrada vazia na pergunta de login, e o comando parou com "EOF when reading a line". O resultado vem do comando antigo, safety check, que funciona sem conta e avisa que está descontinuado
+Observação: o Safety grava códigos de cor mesmo com NO_COLOR=1. Esses códigos foram removidos do arquivo, e o texto da saída não mudou
+
+Comandos:
+  set PYTHONIOENCODING=utf-8
+  set NO_COLOR=1
+  safety --version
+  safety check -r docs\evidencias\antes\dependencias_projeto.txt
+  safety scan --target . < NUL
+
+Saída:
+safety, version 3.8.1
+D:\faculdade\alta-qualidade-av3\venv-ferramentas\Lib\site-packages\safety\auth\main.py:5: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose.errors import ExpiredTokenError
+D:\faculdade\alta-qualidade-av3\venv-ferramentas\Lib\site-packages\authlib\integrations\httpx_client\assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+  from ._compat import httpx2
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
++==============================================================================+
+
+                               /$$$$$$            /$$
+                              /$$__  $$          | $$
+           /$$$$$$$  /$$$$$$ | $$  \__//$$$$$$  /$$$$$$   /$$   /$$
+          /$$_____/ |____  $$| $$$$   /$$__  $$|_  $$_/  | $$  | $$
+         |  $$$$$$   /$$$$$$$| $$_/  | $$$$$$$$  | $$    | $$  | $$
+          \____  $$ /$$__  $$| $$    | $$_____/  | $$ /$$| $$  | $$
+          /$$$$$$$/|  $$$$$$$| $$    |  $$$$$$$  |  $$$$/|  $$$$$$$
+         |_______/  \_______/|__/     \_______/   \___/   \____  $$
+                                                          /$$  | $$
+                                                         |  $$$$$$/
+  by safetycli.com                                        \______/
+
++==============================================================================+
+
+ REPORT 
+
+  Safety v3.8.1 is scanning for Vulnerabilities...
+  Scanning dependencies in your files:
+
+  -> docs\evidencias\antes\dependencias_projeto.txt
+
+  Using open-source vulnerability database
+  Found and scanned 24 packages
+  Timestamp 2026-11-25 20:46:05
+  0 vulnerabilities reported
+  0 vulnerabilities ignored
++==============================================================================+
+
+ No known security vulnerabilities reported. 
+
++==============================================================================+
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+D:\faculdade\alta-qualidade-av3\venv-ferramentas\Lib\site-packages\safety\auth\main.py:5: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose.errors import ExpiredTokenError
+D:\faculdade\alta-qualidade-av3\venv-ferramentas\Lib\site-packages\authlib\integrations\httpx_client\assertion_client.py:5: AuthlibDeprecationWarning: The httpx module is deprecated; please use httpx2 instead.
+  from ._compat import httpx2
+
+Please login or register Safety CLI (free forever) to scan and secure your 
+projects with Safety
+
+(R)egister for a free account in 30 seconds, or (L)ogin with an existing 
+account to continue (R/L): Unhandled exception happened: EOF when reading a line

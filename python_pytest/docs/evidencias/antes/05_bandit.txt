@@ -1,0 +1,39 @@
+Análise de segurança do código com Bandit - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+Ferramenta: Bandit 1.9.4, instalada em ambiente separado (D:\faculdade\alta-qualidade-av3\venv-ferramentas), fora do projeto
+Escopo: pasta src, que é o código do sistema. Os testes ficam fora porque usam assert, que o Bandit sempre aponta e que não afeta o sistema
+
+Comandos:
+  bandit --version
+  bandit -r src
+
+Saída:
+bandit 1.9.4
+  python version = 3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit (AMD64)]
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[main]	INFO	running on Python 3.11.5
+Run started:2026-11-25 23:05:17.393086+00:00
+
+Test results:
+	No issues identified.
+
+Code scanned:
+	Total lines of code: 133
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+Files skipped (0):

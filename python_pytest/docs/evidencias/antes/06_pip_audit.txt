@@ -1,0 +1,15 @@
+Auditoria das dependências com pip-audit - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+Ferramenta: pip-audit 2.10.1, instalada em ambiente separado (D:\faculdade\alta-qualidade-av3\venv-ferramentas), fora do projeto
+Escopo: as 24 bibliotecas instaladas na venv do projeto, listadas com pip freeze em dependencias_projeto.txt
+
+Comandos:
+  python -m pip freeze > docs\evidencias\antes\dependencias_projeto.txt   (na venv do projeto)
+  pip-audit --version
+  pip-audit -r docs\evidencias\antes\dependencias_projeto.txt --no-deps
+
+Saída:
+pip-audit 2.10.1
+WARNING:pip_audit._cli:--no-deps is supported, but users are encouraged to fully hash their pinned dependencies
+WARNING:pip_audit._cli:Consider using a tool like `pip-compile`: https://pip-tools.readthedocs.io/en/latest/#using-hashes
+No known vulnerabilities found
