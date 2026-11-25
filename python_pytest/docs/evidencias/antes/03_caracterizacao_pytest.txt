@@ -1,0 +1,60 @@
+Execução dos testes de caracterização - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+Testes: 40 de caracterização (tests/test_comportamento_legado.py) e o original (tests/test_supermarket.py)
+
+Comando:
+  pytest -v
+
+Saída:
+============================= test session starts =============================
+platform win32 -- Python 3.11.5, pytest-9.2.0, pluggy-1.7.0 -- D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\faculdade\alta-qualidade-av3\SupermarketReceipt-Refactoring-Kata\python_pytest
+configfile: pytest.ini
+testpaths: tests
+plugins: approvaltests-21.1.0, approvaltests-0.2.4
+collecting ... collected 41 items
+
+tests/test_comportamento_legado.py::test_carrinho_vazio_gera_recibo_vazio PASSED [  2%]
+tests/test_comportamento_legado.py::test_recibo_tem_uma_linha_por_item_na_ordem_do_carrinho PASSED [  4%]
+tests/test_comportamento_legado.py::test_total_sem_oferta_e_a_soma_dos_itens PASSED [  7%]
+tests/test_comportamento_legado.py::test_mesmo_produto_adicionado_duas_vezes_gera_duas_linhas PASSED [  9%]
+tests/test_comportamento_legado.py::test_oferta_considera_a_soma_das_linhas_do_mesmo_produto PASSED [ 12%]
+tests/test_comportamento_legado.py::test_oferta_de_produto_fora_do_carrinho_nao_gera_desconto PASSED [ 14%]
+tests/test_comportamento_legado.py::test_nova_oferta_substitui_a_anterior_do_mesmo_produto PASSED [ 17%]
+tests/test_comportamento_legado.py::test_leve_3_pague_2_abaixo_do_minimo_nao_gera_desconto PASSED [ 19%]
+tests/test_comportamento_legado.py::test_leve_3_pague_2[3--0.99-1.98] PASSED [ 21%]
+tests/test_comportamento_legado.py::test_leve_3_pague_2[6--1.98-3.96] PASSED [ 24%]
+tests/test_comportamento_legado.py::test_leve_3_pague_2[7--1.98-4.95] PASSED [ 26%]
+tests/test_comportamento_legado.py::test_desconto_percentual[1--0.249-2.241] PASSED [ 29%]
+tests/test_comportamento_legado.py::test_desconto_percentual[2--0.498-4.482] PASSED [ 31%]
+tests/test_comportamento_legado.py::test_desconto_percentual_vale_sobre_fracao_de_peso PASSED [ 34%]
+tests/test_comportamento_legado.py::test_ten_percent_discount_aplica_o_percentual_cadastrado_item_mantido_d8 PASSED [ 36%]
+tests/test_comportamento_legado.py::test_dois_por_valor_com_1_unidade_nao_gera_desconto PASSED [ 39%]
+tests/test_comportamento_legado.py::test_dois_por_valor_com_quantidade_par[2--0.39-0.99] PASSED [ 41%]
+tests/test_comportamento_legado.py::test_dois_por_valor_com_quantidade_par[4--0.78-1.98] PASSED [ 43%]
+tests/test_comportamento_legado.py::test_dois_por_valor_com_3_unidades_cobra_a_mais_item_mantido_d12 PASSED [ 46%]
+tests/test_comportamento_legado.py::test_dois_por_valor_com_5_unidades_cobra_a_mais_item_mantido_d12 PASSED [ 48%]
+tests/test_comportamento_legado.py::test_cinco_por_valor_abaixo_do_minimo_nao_gera_desconto PASSED [ 51%]
+tests/test_comportamento_legado.py::test_cinco_por_valor[5--1.46-7.49] PASSED [ 53%]
+tests/test_comportamento_legado.py::test_cinco_por_valor[6--1.46-9.28] PASSED [ 56%]
+tests/test_comportamento_legado.py::test_cinco_por_valor[10--2.92-14.98] PASSED [ 58%]
+tests/test_comportamento_legado.py::test_fracao_de_peso_nao_completa_grupo_da_oferta PASSED [ 60%]
+tests/test_comportamento_legado.py::test_fracao_de_peso_sai_de_graca_item_mantido_d13 PASSED [ 63%]
+tests/test_comportamento_legado.py::test_descontos_seguem_a_ordem_do_carrinho PASSED [ 65%]
+tests/test_comportamento_legado.py::test_todas_as_ofertas_no_mesmo_carrinho PASSED [ 68%]
+tests/test_comportamento_legado.py::test_recibo_impresso_com_itens_e_desconto PASSED [ 70%]
+tests/test_comportamento_legado.py::test_recibo_impresso_com_leve_3_pague_2 PASSED [ 73%]
+tests/test_comportamento_legado.py::test_recibo_impresso_vazio PASSED    [ 75%]
+tests/test_comportamento_legado.py::test_add_item_adiciona_uma_unidade PASSED [ 78%]
+tests/test_comportamento_legado.py::test_product_quantities_soma_as_quantidades_do_mesmo_produto PASSED [ 80%]
+tests/test_comportamento_legado.py::test_handle_offers_chamado_diretamente_adiciona_so_os_descontos PASSED [ 82%]
+tests/test_comportamento_legado.py::test_recibo_montado_diretamente PASSED [ 85%]
+tests/test_comportamento_legado.py::test_items_e_discounts_do_recibo_devolvem_copias PASSED [ 87%]
+tests/test_comportamento_legado.py::test_caixa_guarda_o_catalogo_e_comeca_sem_ofertas PASSED [ 90%]
+tests/test_comportamento_legado.py::test_product_with_name_com_catalogo_de_teste PASSED [ 92%]
+tests/test_comportamento_legado.py::test_product_with_name_falha_com_catalogo_real_item_mantido_d5 PASSED [ 95%]
+tests/test_comportamento_legado.py::test_catalogo_real_lanca_exception_generica_item_mantido_d10 PASSED [ 97%]
+tests/test_supermarket.py::test_ten_percent_discount PASSED              [100%]
+
+============================= 41 passed in 0.29s ==============================
