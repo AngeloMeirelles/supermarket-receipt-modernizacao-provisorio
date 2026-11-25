@@ -1,17 +1,19 @@
-from model_objects import Offer
+from catalog import SupermarketCatalog
+from model_objects import Offer, Product, SpecialOfferType
 from receipt import Receipt
+from shopping_cart import ShoppingCart
 
 
 class Teller:
 
-    def __init__(self, catalog):
+    def __init__(self, catalog: SupermarketCatalog) -> None:
         self.catalog = catalog
-        self.offers = {}
+        self.offers: dict[Product, Offer] = {}
 
-    def add_special_offer(self, offer_type, product, argument):
+    def add_special_offer(self, offer_type: SpecialOfferType, product: Product, argument: float) -> None:
         self.offers[product] = Offer(offer_type, product, argument)
 
-    def checks_out_articles_from(self, the_cart):
+    def checks_out_articles_from(self, the_cart: ShoppingCart) -> Receipt:
         receipt = Receipt()
         for item in the_cart.items:
             product = item.product
@@ -24,5 +26,5 @@ class Teller:
 
         return receipt
 
-    def product_with_name(self, name):
+    def product_with_name(self, name: str) -> Product | None:
         return self.catalog.products.get(name, None)

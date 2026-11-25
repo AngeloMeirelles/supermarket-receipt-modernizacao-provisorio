@@ -1,6 +1,8 @@
 import math
 
-from model_objects import ProductQuantity, SpecialOfferType, Discount
+from catalog import SupermarketCatalog
+from model_objects import ProductQuantity, SpecialOfferType, Discount, Offer, Product
+from receipt import Receipt
 
 THREE_FOR_TWO_GROUP_SIZE = 3
 THREE_FOR_TWO_PAID_UNITS = 2
@@ -11,36 +13,36 @@ PERCENT_BASE = 100.0
 
 class ShoppingCart:
 
-    def __init__(self):
-        self._items = []
-        self._product_quantities = {}
+    def __init__(self) -> None:
+        self._items: list[ProductQuantity] = []
+        self._product_quantities: dict[Product, float] = {}
 
     @property
-    def items(self):
+    def items(self) -> list[ProductQuantity]:
         return self._items
 
-    def add_item(self, product):
+    def add_item(self, product: Product) -> None:
         self.add_item_quantity(product, 1.0)
 
     @property
-    def product_quantities(self):
+    def product_quantities(self) -> dict[Product, float]:
         return self._product_quantities
 
-    def add_item_quantity(self, product, quantity):
+    def add_item_quantity(self, product: Product, quantity: float) -> None:
         self._items.append(ProductQuantity(product, quantity))
         if product in self._product_quantities.keys():
             self._product_quantities[product] = self._product_quantities[product] + quantity
         else:
             self._product_quantities[product] = quantity
 
-    def handle_offers(self, receipt, offers, catalog):
+    def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog: SupermarketCatalog) -> None:
         for product in self._product_quantities.keys():
             quantity = self._product_quantities[product]
             if product in offers.keys():
                 offer = offers[product]
                 unit_price = catalog.unit_price(product)
                 quantity_as_int = int(quantity)
-                discount = None
+                discount: Discount | None = None
                 group_size = 1
                 if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
                     group_size = THREE_FOR_TWO_GROUP_SIZE
