@@ -1,0 +1,19 @@
+Cobertura dos testes de caracterização - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+Testes: 40 de caracterização (tests/test_comportamento_legado.py) e o original (tests/test_supermarket.py)
+Comparação: só com o teste original, a cobertura era de 71% (02_cobertura.txt)
+
+Comandos:
+  coverage run --source=src -m pytest
+  coverage report -m
+
+Saída:
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+src\catalog.py             5      0   100%
+src\model_objects.py      27      0   100%
+src\receipt.py            27      0   100%
+src\shopping_cart.py      49      0   100%
+src\teller.py             21      0   100%
+----------------------------------------------------
+TOTAL                    129      0   100%
