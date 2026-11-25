@@ -1,0 +1,18 @@
+Cobertura de testes - código original
+Pasta: python_pytest (código do commit c72d68a do repositório original)
+
+Comandos:
+  coverage run --source=src -m pytest
+  coverage report -m
+
+
+Saída:
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+src\catalog.py             5      2    60%   5, 8
+src\model_objects.py      27      3    89%   36-38
+src\receipt.py            27      2    93%   20, 27
+src\shopping_cart.py      49     29    41%   17, 21, 26, 34-68
+src\teller.py             21      1    95%   29
+----------------------------------------------------
+TOTAL                    129     37    71%
