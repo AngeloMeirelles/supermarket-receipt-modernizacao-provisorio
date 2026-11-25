@@ -12,7 +12,7 @@ Este documento descreve:
   ofertas existentes;
 - duas correções de defeitos encontrados no diagnóstico (D12 e D13);
 - a nova promoção de combos;
-- os pontos que ainda estão em análise pela equipe (seção 8).
+- as decisões sobre dois pontos levantados na revisão (seção 8).
 
 Os preços usados nos critérios de aceitação são exemplos para os testes. Cada critério informa
 os preços que usa e mostra a conta. Nos combos foram usados os valores do enunciado: escova a
@@ -33,7 +33,7 @@ os preços que usa e mostra a conta. Nos combos foram usados os valores do enunc
 
 | # | Requisito | Critério de aceitação |
 |---|---|---|
-| RF01 | O carrinho aceita produtos por unidade ou por peso. O mesmo produto pode ser adicionado mais de uma vez. Cada adição vira uma linha no recibo, e as ofertas são calculadas sobre a quantidade total do produto. Ponto em análise P1 (seção 8) | Escova a 0,99 com "leve 3, pague 2", adicionada com quantidade 2 e depois com quantidade 1. O recibo mostra 2 linhas: 1,98 (2 × 0,99) e 0,99. A oferta considera as 3 escovas: desconto de -0,99 e total 1,98 |
+| RF01 | O carrinho aceita produtos por unidade ou por peso. O mesmo produto pode ser adicionado mais de uma vez. Cada adição vira uma linha no recibo, e as ofertas são calculadas sobre a quantidade total do produto. Esse comportamento é mantido (decisão P1, seção 8) | Escova a 0,99 com "leve 3, pague 2", adicionada com quantidade 2 e depois com quantidade 1. O recibo mostra 2 linhas: 1,98 (2 × 0,99) e 0,99. A oferta considera as 3 escovas: desconto de -0,99 e total 1,98 |
 | RF02 | Cada item do recibo tem produto, quantidade, preço unitário e total da linha (quantidade × preço), na ordem em que entrou no carrinho | Maçã a 1,99 o quilo, 2,5 kg: quantidade 2,5, preço 1,99 e total da linha 4,975 (2,5 × 1,99) |
 | RF03 | O total do recibo é a soma dos itens mais a soma dos descontos, que são negativos | Sem ofertas, 1 escova a 0,99 e 2,5 kg de maçã a 1,99 o quilo: 0,99 + 4,975 = 5,965 |
 | RF04 | Oferta de um produto que não está no carrinho não gera desconto | 10% cadastrado na escova (0,99) e carrinho só com 2,5 kg de maçã a 1,99 o quilo: nenhum desconto, total 4,975 |
@@ -44,7 +44,7 @@ os preços que usa e mostra a conta. Nos combos foram usados os valores do enunc
 | # | Requisito | Critério de aceitação |
 |---|---|---|
 | RF06 | Leve 3, pague 2: a cada 3 unidades o cliente paga 2. As unidades que sobram pagam preço normal. Texto do desconto: `3 for 2` | Escova a 0,99. 2 unidades: sem desconto, total 1,98. 3 unidades: paga 2, desconto de -0,99, total 1,98. 7 unidades: os 2 grupos de 3 pagam 4 escovas e a 7ª paga preço normal, total 4,95 (5 × 0,99). Sem oferta seriam 6,93, então o desconto é de -1,98 |
-| RF07 | Desconto percentual: quantidade × preço × percentual / 100, inclusive sobre frações. O percentual é o valor informado no cadastro da oferta. Texto: o percentual seguido de `% off`, por exemplo `10.0% off`. Apesar do nome TEN_PERCENT_DISCOUNT, aceita qualquer percentual. Ponto em análise P2 (seção 8) | Arroz a 2,49 o pacote com 10%: 2 pacotes custam 4,98, desconto de -0,498 (10% de 4,98), total 4,482. Maçã a 1,99 o quilo com 20%: 1 kg tem desconto de -0,398 e texto `20.0% off` |
+| RF07 | Desconto percentual: quantidade × preço × percentual / 100, inclusive sobre frações. O percentual é o valor informado no cadastro da oferta. Texto: o percentual seguido de `% off`, por exemplo `10.0% off`. Apesar do nome TEN_PERCENT_DISCOUNT, aceita qualquer percentual. O tipo também pode ser informado pelo nome PERCENT_DISCOUNT, que é um apelido de TEN_PERCENT_DISCOUNT (decisão P2, seção 8) | Arroz a 2,49 o pacote com 10%: 2 pacotes custam 4,98, desconto de -0,498 (10% de 4,98), total 4,482. Maçã a 1,99 o quilo com 20%: 1 kg tem desconto de -0,398 e texto `20.0% off`. Cadastrar a oferta com PERCENT_DISCOUNT dá o mesmo desconto e o mesmo texto que com TEN_PERCENT_DISCOUNT |
 | RF08 | 2 por um valor: cada par paga o valor cadastrado na oferta. A unidade que sobra paga preço normal. Texto: `2 for` seguido do valor, por exemplo `2 for 0.99`. Corrige o defeito D12 | Tomate a 0,69 a caixa, com "2 por 0,99". 1 caixa: 0,69. 2 caixas: 0,99. 3 caixas: 1 par (0,99) + 1 caixa a preço normal (0,69) = 1,68. 4 caixas: 2 pares = 1,98. O código original cobrava 2,175 por 3 caixas, mais do que os 2,07 sem oferta, porque contava 1,5 par e ainda cobrava a caixa que sobrou (D12) |
 | RF09 | 5 por um valor: cada grupo de 5 unidades paga o valor cadastrado. As que sobram pagam preço normal. Texto: `5 for` seguido do valor, por exemplo `5 for 7.49` | Creme dental a 1,79 com "5 por 7,49". 4 unidades: sem desconto, total 7,16 (4 × 1,79). 5 unidades: total 7,49; sem oferta seriam 8,95, então o desconto é de -1,46. 6 unidades: 7,49 + 1,79 = 9,28 |
 | RF10 | Nas ofertas por quantidade (RF06, RF08 e RF09), só unidades inteiras formam grupos. A fração de um produto vendido por peso paga preço normal. Corrige o defeito D13 | Maçã a 1,99 o quilo com "leve 3, pague 2", e o cliente leva 3,5 kg (sem oferta: 6,965). Os 3 kg inteiros formam um grupo e pagam 2 kg: 3,98. O 0,5 kg que sobra paga preço normal: 0,995. Total 4,975, desconto de -1,99. O código original cobrava 3,98: o 0,5 kg saía de graça (D13) |
@@ -121,7 +121,7 @@ testes antes e depois. A meta de 90% do RNF03 é da equipe. O `coverage` já faz
 | Product | `Product(name, unit)`, atributos `name` e `unit` |
 | ProductQuantity | `ProductQuantity(product, quantity)`, atributos `product` e `quantity` |
 | ProductUnit | valores `EACH` e `KILO` |
-| SpecialOfferType | valores `THREE_FOR_TWO`, `TEN_PERCENT_DISCOUNT`, `TWO_FOR_AMOUNT` e `FIVE_FOR_AMOUNT` |
+| SpecialOfferType | valores `THREE_FOR_TWO`, `TEN_PERCENT_DISCOUNT`, `TWO_FOR_AMOUNT` e `FIVE_FOR_AMOUNT`. O apelido `PERCENT_DISCOUNT` é acrescentado sem remover nada (decisão P2) |
 | Offer | `Offer(offer_type, product, argument)` e os atributos de mesmo nome |
 | Discount | `Discount(product, description, discount_amount)` e os atributos de mesmo nome |
 | SupermarketCatalog | `add_product(product, price)` e `unit_price(product)` |
@@ -149,7 +149,7 @@ dental], com 10% de desconto.
 |---|---|
 | RF08 | D12 (correção do "2 por valor" com quantidade ímpar) |
 | RF10 | D13 (correção da fração de peso) |
-| RF07 | D8 (nome TEN_PERCENT_DISCOUNT aceita qualquer percentual; ponto em análise P2) |
+| RF07 | D8 (nome TEN_PERCENT_DISCOUNT aceita qualquer percentual; resolvido com o apelido PERCENT_DISCOUNT, decisão P2) |
 | RNF01 | D5 (`product_with_name` faz parte da interface e é mantido) |
 | RNF03 | D11 (falta de testes) |
 | RNF04 | D1, D2 e D3 (condicionais por tipo e fórmulas duplicadas) |
@@ -166,10 +166,9 @@ a classe ou o método que o implementa, o arquivo e o nome do teste que o verifi
 evidência da execução. É por ela que se confere o RNF03 (cada RF tem teste) e o RNF05 (cada
 regra tem teste isolado).
 
-## 8. Pontos em análise
+## 8. Pontos decididos na revisão
 
-Os pontos abaixo ainda não foram decididos pela equipe. Até a decisão, vale o comportamento
-do código original, descrito no requisito correspondente.
+Os dois pontos abaixo foram levantados na revisão de 25/11/2026 e decididos pela equipe.
 
 ### P1. Mesmo produto em mais de uma linha do recibo (RF01)
 
@@ -177,16 +176,17 @@ Hoje, cada vez que um produto é adicionado ao carrinho, o recibo ganha uma linh
 adicionada com quantidade 2 e depois com quantidade 1 gera duas linhas da escova. O total e
 as ofertas já estão certos, porque as ofertas usam a soma das quantidades.
 
-Proposta em análise: mostrar uma linha por produto, com a quantidade somada.
+Proposta analisada: mostrar uma linha por produto, com a quantidade somada.
 
 - A favor: o recibo fica mais limpo e mais fácil de conferir.
-- Contra: muda a quantidade de itens devolvida por `checks_out_articles_from` e o texto do
-  recibo impresso. O enunciado manda preservar os valores exibidos no recibo e o contrato
-  observável das interfaces públicas, e penaliza a quebra injustificada de regra ou interface.
-  Diferente do RF08 e do RF10, aqui não há valor cobrado errado, então a justificativa é mais
-  fraca.
-- Se for adotada: mudança no Teller, em commit separado, com testes de caracterização
-  mostrando o recibo antes e depois, e registro no plano de contingência.
+- Contra: muda a lista de itens (`receipt.items`) do recibo devolvido por
+  `checks_out_articles_from` e o texto do recibo impresso. O enunciado manda preservar os
+  valores exibidos no recibo e o contrato observável das interfaces públicas, e penaliza a
+  quebra injustificada de regra ou interface. Diferente do RF08 e do RF10, aqui não há valor
+  cobrado errado, então a justificativa é mais fraca.
+
+Decisão: manter o comportamento do código original. Cada adição continua sendo uma linha do
+recibo, como descreve o RF01. Os testes de caracterização registram esse comportamento.
 
 ### P2. Nome TEN_PERCENT_DISCOUNT com qualquer percentual (RF07)
 
@@ -203,3 +203,16 @@ Opções:
 | Fixar em 10% | Só 10% passa a ser aceito | Remove uma regra existente: 20% na maçã deixa de ser possível |
 | Renomear para PERCENT_DISCOUNT | Nome correto | Quebra a interface pública: `tests/test_supermarket.py` usa TEN_PERCENT_DISCOUNT e deixa de passar (RNF01) |
 | Manter o nome e acrescentar PERCENT_DISCOUNT como apelido | Os dois nomes apontam para o mesmo tipo de oferta. O código existente continua funcionando e o código novo usa o nome correto | Acrescenta um nome ao enum, sem remover nada |
+
+Decisão: manter o nome TEN_PERCENT_DISCOUNT e acrescentar PERCENT_DISCOUNT como apelido.
+
+Em Python, quando dois nomes de um enum recebem o mesmo valor, o segundo vira apelido do
+primeiro: os dois são o mesmo membro. Com isso:
+
+- `SpecialOfferType.PERCENT_DISCOUNT is SpecialOfferType.TEN_PERCENT_DISCOUNT` é verdadeiro;
+- a lista de tipos de oferta continua com quatro tipos;
+- o texto do desconto não muda, porque vem do percentual cadastrado e não do nome;
+- o teste original continua passando sem alteração (RNF01).
+
+O código novo passa a usar PERCENT_DISCOUNT. O nome antigo continua valendo para quem já o
+usa. A mudança entra na refatoração, e o plano de contingência indica em qual etapa.
