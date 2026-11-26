@@ -59,8 +59,8 @@ if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
     x = 5
 ```
 
-É o mesmo formato do exemplo "antes" do princípio Aberto/Fechado, em que uma classe
-`Desconto` decide o cálculo com `if tipo == ... elif ...`.
+É o formato que o princípio Aberto/Fechado aponta como problema: uma classe que decide o
+cálculo com `if tipo == ... elif ...` precisa ser alterada sempre que surge um tipo novo.
 
 Efeitos. Evolução: qualquer oferta nova obriga a editar este método. Manutenção: ao mexer em
 uma oferta é fácil afetar outra, porque todas usam as mesmas variáveis. Testabilidade: não

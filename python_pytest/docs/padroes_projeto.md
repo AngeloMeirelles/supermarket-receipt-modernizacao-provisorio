@@ -288,7 +288,7 @@ O arquivo `tests/test_estrategias_oferta.py` demonstra essa possibilidade com um
 
 ```python
 class QuatroPorSeis(QuantityOfferStrategy):
-    """Oferta adicional para teste: 4 unidades por 6,00."""
+    """Oferta inventada só para o teste: 4 unidades por 6,00."""
 
     def _group_size(self):
         return 4
@@ -317,7 +317,7 @@ _STRATEGY_BUILDERS: dict[SpecialOfferType, Callable[[float], IOfferStrategy]] = 
 
 A inclusão de um novo tipo de oferta exige adicionar sua associação à tabela de criação. Um tipo de oferta desconhecido não gera uma estratégia, mantendo o comportamento existente no código original.
 
-A fábrica utilizada no projeto é uma fábrica simples. Ela centraliza a criação dos objetos de estratégia, mas não implementa o padrão Factory Method, no qual uma classe base declara um método de criação e as subclasses definem qual objeto será criado.
+O enunciado cita o Factory Method como exemplo para a seleção de estratégias. A fábrica utilizada no projeto é uma fábrica simples. Ela centraliza a criação dos objetos de estratégia, mas não implementa o padrão Factory Method, no qual uma classe base declara um método de criação e as subclasses definem qual objeto será criado.
 
 Por isso, os padrões de projeto aplicados são Strategy e Template Method. A fábrica simples atua como mecanismo de apoio à seleção das estratégias.
 

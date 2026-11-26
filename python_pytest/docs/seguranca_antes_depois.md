@@ -1,4 +1,3 @@
-
 # Análise de segurança antes e depois
 
 Projeto: Supermarket Receipt, versão python_pytest.
@@ -25,9 +24,9 @@ Os testes ficaram fora da análise do Bandit. Eles usam `assert` frequentemente,
 
 ## 3. Comandos
 
-Os mesmos comandos foram utilizados antes e depois, alterando apenas a pasta de destino das evidências:
+Os mesmos comandos foram utilizados no terminal cmd do Windows, antes e depois, alterando apenas a pasta de destino das evidências:
 
-```powershell
+```bat
 python -m pip freeze > docs\evidencias\antes\dependencias_projeto.txt
 bandit --version
 bandit -r src

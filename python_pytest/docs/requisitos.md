@@ -1,4 +1,3 @@
-
 # Requisitos
 
 Projeto: Supermarket Receipt, versão python_pytest.
@@ -64,8 +63,8 @@ Preços usados nesta seção, salvo indicação: escova a 10,00 e creme dental a
 Esta seção registra as decisões adotadas para o tratamento de múltiplos combos e sua convivência com as ofertas existentes.
 
 - **Composição (RF12 e RF13):** um combo é formado por uma unidade de cada produto, com pelo menos dois produtos diferentes.
-- **Múltiplos combos do mesmo tipo (RF14):** valem tantos combos quanto a quantidade do produto mais escasso. O excedente paga preço normal.
-- **Convivência com outras ofertas (RF16):** produto com oferta própria não participa de combos. Assim, nenhum recibo que já tinha oferta muda de valor, e não existe a possibilidade de dois descontos sobre o mesmo item. A regra considera apenas o cadastro da oferta, evitando que um mesmo produto receba dois descontos. Consequência aceita: se a oferta própria não for atingida, como em 1 escova com "leve 3, pague 2", o produto fica sem desconto nenhum. A alternativa considerada foi liberar para o combo as unidades que a oferta própria não utilizou. Ela foi descartada porque cada oferta teria de informar quantas unidades utilizou, o que torna a regra mais difícil de prever e testar.
+- **Múltiplos combos do mesmo tipo (RF14):** valem tantos combos quanto a quantidade do produto mais escasso. O excedente paga preço normal. É o que mostra a tabela da seção 3.2 do enunciado.
+- **Convivência com outras ofertas (RF16):** produto com oferta própria não participa de combos. Assim, nenhum recibo que já tinha oferta muda de valor, e não existe a possibilidade de dois descontos sobre o mesmo item. A regra depende apenas do cadastro da oferta, o que a torna simples de prever e de testar. Consequência aceita: se a oferta própria não for atingida, como em 1 escova com "leve 3, pague 2", o produto fica sem desconto nenhum. A alternativa considerada foi liberar para o combo as unidades que a oferta própria não utilizou. Ela foi descartada porque cada oferta teria de informar quantas unidades utilizou, o que torna a regra mais difícil de prever e testar.
 - **Combos diferentes com produto em comum (RF17):** cada unidade entra em um combo só, na ordem de cadastro, para evitar descontos duplicados. A alternativa de escolher o combo de maior desconto foi descartada: exige comparar combinações de combos e o resultado fica mais difícil de prever.
 - **Produtos por peso (RF15):** o preço de um produto vendido por peso é por quilo, então o quilo é a unidade do produto. Só quilos inteiros entram no combo, e a fração paga preço normal. As ofertas por quantidade também contam só unidades inteiras (RF10), mas nelas a fração sai de graça por causa do defeito D13, que é mantido. O combo é uma regra nova, então cobra a fração do jeito certo.
 - **Recibo (RF11 e RF13):** uma linha de desconto por produto do combo. A classe Discount liga cada desconto a um produto, então não é preciso mudar a estrutura do recibo. Os descontos de combo vêm depois dos demais, e um recibo sem combo fica igual ao do código original.

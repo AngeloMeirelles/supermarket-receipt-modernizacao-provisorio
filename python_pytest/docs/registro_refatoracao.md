@@ -12,7 +12,7 @@ As próximas etapas serão acrescentadas a este registro conforme forem concluí
 
 Antes de cada commit, são realizadas as seguintes verificações:
 
-- `pytest`: todos os testes precisam passar, sem alterações nos testes que já existiam. Eram 41 até a E4; passaram a 60 com os testes das ofertas isoladas da E5, a 68 com os testes da classe base da E6, a 76 com os testes da fábrica da E7, a 82 com os testes da calculadora da E8 e a 100 com os testes dos combos da E9;
+- `pytest`: todos os testes precisam passar, sem alterações nos testes que já existiam. Eram 41 até a E4 (40 de caracterização e o teste original); passaram a 60 com os testes das ofertas isoladas da E5, a 68 com os testes da classe base da E6, a 76 com os testes da fábrica da E7, a 82 com os testes da calculadora da E8 e a 100 com os testes dos combos da E9;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode cair.
 
 Esses critérios correspondem aos critérios de aceitação da seção 6 do plano de contingência. Os testes de caracterização registram o comportamento do código original, inclusive o dos itens mantidos (D5, D8, D10, D12 e D13). Se algum deles falhar, significa que a etapa alterou um comportamento registrado.
@@ -533,7 +533,7 @@ O requisito 3.2 do enunciado define um desconto de 10% sobre os produtos de cada
 
 O cálculo segue estes passos:
 
-1. separa as unidades que podem entrar em combo: só as unidades inteiras (RF15) e só de produtos sem oferta própria;
+1. separa as unidades que podem entrar em combo: só as unidades inteiras (RF15) e só de produtos sem oferta própria (RF16);
 2. percorre os combos na ordem de cadastro. Para cada combo, o número de combos formados é a menor quantidade disponível entre os seus produtos (RF14);
 3. consome essas unidades, para que não sejam utilizadas em outro combo (RF17);
 4. cria uma linha `bundle 10% off` por produto do combo, com 10% do preço das unidades que entraram (RF13).

@@ -12,7 +12,7 @@ Regra geral: nenhum resultado do sistema atual é alterado. Antes de mexer no c�
 
 Cada etapa só começa quando a anterior cumpre seus critérios de aceitação (seção 6). Uma etapa pode ter mais de um commit, desde que todos os testes passem em cada um.
 
-| Etapa | Etapa correspondente | O que muda | Itens | Testes associados | Commit |
+| Etapa | Passo do enunciado | O que muda | Itens | Testes associados | Commit |
 |---|---|---|---|---|---|
 | E1 | 6 | Testes de caracterização sobre o código original, sem mexer em `src/`. Registram o comportamento atual, inclusive o dos itens que são mantidos (seção 3.1) | D11 | `tests/test_comportamento_legado.py` | `test:` |
 | E2 | 7 | Linha de base de segurança: Bandit, pip-audit e Safety sobre o código original | RNF06 | não se aplica | `docs:` |
@@ -29,7 +29,7 @@ Cada etapa só começa quando a anterior cumpre seus critérios de aceitação (
 
 Por que nessa ordem:
 
-- Caracterização primeiro (E1). Os testes registram o comportamento atual antes de qualquer alteração nas regras de negócio. Eles servem de referência para identificar mudanças.
+- Caracterização primeiro (E1). Os testes registram o comportamento atual antes de qualquer alteração no código. Eles servem de referência para identificar mudanças.
 - Segurança antes de mexer (E2). A linha de base precisa ser do código original, para a comparação da E11 fazer sentido.
 - Nenhuma etapa muda resultado (E3 a E8). Os testes da E1 não são alterados em nenhum momento. Se algum falhar, a refatoração precisa ser revista. Assim, a comparação de antes e depois mostra se as saídas permaneceram iguais.
 - ReceiptPrinter antes das anotações de tipo (E3 antes da E4). Depois de ir para `src/`, ele também recebe as anotações de tipo da E4.
@@ -79,6 +79,8 @@ Cuidados na refatoração:
 ### 3.2 Impressão do recibo: D14
 
 O ReceiptPrinter monta o texto do recibo, que é uma função do sistema, não um teste. Decisão: mover o arquivo para `src/`. O `pytest.ini` coloca `src` e `tests` no caminho de importação, então `from receipt_printer import ReceiptPrinter` funciona igual antes e depois. O commit da E3 só move o arquivo, sem alterar o conteúdo. A partir da E3, o ReceiptPrinter passa a contar na cobertura de `src/`. A comparação de cobertura entre antes e depois deve levar isso em conta, porque `src/` passa a ter um arquivo a mais.
+
+As decisões P1 e P2 estão justificadas na seção 8 dos requisitos (`docs/requisitos.md`).
 
 ## 4. Riscos e medidas preventivas
 
