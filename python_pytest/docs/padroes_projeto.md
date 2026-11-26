@@ -1,8 +1,6 @@
 # Padrões de projeto
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: código original no commit c72d68a e código modernizado na branch `modernizacao`.
-Data: 25/11/2026.
 
 ## 1. Resumo
 
@@ -18,8 +16,8 @@ apontado no diagnóstico (`docs/diagnostico_tecnico.md`).
 
 ## 2. Diagrama de classes antes
 
-Diagrama simplificado do código original, só com as classes que participam do cálculo dos
-descontos:
+Diagrama simplificado do código original (commit c72d68a), só com as classes que participam do
+cálculo dos descontos. Os trechos de "antes" deste documento também são desse commit.
 
 ```mermaid
 classDiagram
