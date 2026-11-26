@@ -16,8 +16,8 @@ Antes de cada commit:
 
 - `pytest`: todos os testes precisam passar, sem nenhuma alteração nos testes que já existiam.
   Eram 41 até a E4 (40 de caracterização e o teste original), passaram a 60 com os testes das
-  ofertas isoladas da E5, a 68 com os testes da classe base da E6 e a 76 com os testes da
-  fábrica da E7;
+  ofertas isoladas da E5, a 68 com os testes da classe base da E6, a 76 com os testes da
+  fábrica da E7 e a 82 com os testes da calculadora da E8;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode
   cair.
 
@@ -38,6 +38,8 @@ D12 e D13). Se um deles falhar, a etapa mudou um comportamento.
 | E6 | `9f0255c` | Conta comum das ofertas por quantidade numa classe base (Template Method) | D3 | 60 passaram | 100% (227 linhas) |
 | E6 | `60fb453` | Testes da classe base | RNF04 | 68 passaram | 100% (227 linhas) |
 | E7 | `0b1c7aa` | Fábrica simples escolhe a estratégia pelo tipo da oferta, com os testes da fábrica | D1 | 76 passaram | 100% (230 linhas) |
+| E8 | `a123262` | Cálculo dos descontos sai do carrinho para uma classe própria | D4 | 76 passaram | 100% (239 linhas) |
+| E8 | `e40c587` | Testes da calculadora de descontos | RNF05 | 82 passaram | 100% (239 linhas) |
 
 O número de linhas muda porque o ReceiptPrinter entrou na conta na E3, uma variável foi
 retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também contam e a
@@ -500,3 +502,115 @@ Código e testes foram no mesmo commit (`0b1c7aa`). Sem os testes da fábrica, a
 devolve `None` para tipo desconhecido ficaria sem teste, e a cobertura cairia para 99%, o que o
 critério das etapas de refatoração não permite. Os 68 testes que já existiam passaram sem
 alteração, os 76 passaram no total, e a cobertura de `src/` ficou em 100%, com 230 linhas.
+
+## 9. E8: cálculo dos descontos fora do carrinho
+
+### 9.1 Problema
+
+O ShoppingCart guardava os itens da compra e também calculava os descontos das ofertas (D4).
+Pelo princípio da Responsabilidade Única, visto em aula, uma classe deve ter um único motivo
+para mudar. O carrinho tinha dois: mudar a forma de guardar os itens ou mudar o cálculo das
+promoções.
+
+### 9.2 Solução
+
+O cálculo passou para a classe `DiscountCalculator`, no arquivo novo
+`src/discount_calculator.py`:
+
+- ela recebe o catálogo pelo construtor, `DiscountCalculator(catalog)`. É a injeção de
+  dependência vista em aula: a calculadora depende do contrato `SupermarketCatalog`, e não de
+  um catálogo específico, e nos testes recebe o catálogo de teste;
+- o método `offer_discounts(product_quantities, offers)` percorre os produtos na ordem em que
+  entraram no carrinho, pede a estratégia à fábrica, calcula o desconto e devolve a lista de
+  descontos.
+
+O método `handle_offers` do carrinho continua existindo, com o mesmo nome e os mesmos
+parâmetros, porque faz parte da interface pública (RNF01). Ele só repassa o trabalho para a
+calculadora. O caixa não mudou: continua chamando `the_cart.handle_offers(...)`, como no código
+original.
+
+### 9.3 Antes e depois
+
+`handle_offers`, antes:
+
+```python
+def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog: SupermarketCatalog) -> None:
+    for product in self._product_quantities.keys():
+        quantity = self._product_quantities[product]
+        if product in offers.keys():
+            offer = offers[product]
+            unit_price = catalog.unit_price(product)
+            strategy = OfferStrategyFactory.create(offer)
+            if strategy:
+                discount = strategy.calculate_discount(product, quantity, unit_price)
+                if discount:
+                    receipt.add_discount(discount)
+```
+
+Depois:
+
+```python
+def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog: SupermarketCatalog) -> None:
+    for discount in DiscountCalculator(catalog).offer_discounts(self._product_quantities, offers):
+        receipt.add_discount(discount)
+```
+
+O carrinho agora só guarda os itens, e o D4 está resolvido.
+
+### 9.4 Testes da calculadora
+
+O arquivo `tests/test_calculadora_descontos.py` tem 6 testes, que usam só o catálogo de teste e
+dicionários, sem criar Teller, ShoppingCart nem Receipt:
+
+- os descontos saem na ordem dos produtos;
+- não geram desconto: compra sem ofertas, oferta que não atinge o mínimo, oferta de produto que
+  não está na compra e oferta de tipo desconhecido;
+- a calculadora usa o preço do catálogo.
+
+### 9.5 Conferência
+
+Os 76 testes que já existiam passaram sem nenhuma alteração depois do commit `a123262`, e os 82
+passaram depois do commit `e40c587`. A cobertura de `src/` ficou em 100%, com 239 linhas.
+
+## 10. Situação ao fim da refatoração
+
+### 10.1 Itens do diagnóstico
+
+| Item | Situação | Etapa |
+|---|---|---|
+| D1. Um método decide todas as ofertas com condicionais | Resolvido: Strategy e fábrica simples | E5 e E7 |
+| D2. Mesma oferta espalhada no método | Resolvido: uma classe por oferta | E5 |
+| D3. Fórmulas duplicadas | Resolvido: Template Method | E6 |
+| D4. Carrinho guarda itens e calcula promoções | Resolvido: `DiscountCalculator` | E8 |
+| D5. Caixa depende de atributo do catálogo de teste | Mantido (plano, seção 3.1) | |
+| D6. `argument` com vários significados | Resolvido: cada estratégia dá nome ao valor | E5 |
+| D7. Nomes que não explicam | Resolvido | E4 |
+| D8. Números mágicos e nome TEN_PERCENT_DISCOUNT | Números resolvidos; nome mantido (plano, seção 3.1) | E4 |
+| D9. Sem anotações de tipo | Resolvido | E4 |
+| D10. Exceção genérica | Mantido (plano, seção 3.1) | |
+| D11. Quase nenhum teste | Resolvido: de 1 para 82 testes, cobertura de 71% para 100% | E1, E5 a E8 |
+| D12. "2 por valor" cobra a mais | Mantido, isolado num método (plano, seção 3.1) | |
+| D13. Fração de peso não cobrada | Mantido, isolado numa linha da classe base (plano, seção 3.1) | |
+| D14. Impressão do recibo na pasta de testes | Resolvido | E3 |
+
+### 10.2 Responsabilidade de cada arquivo de `src/`
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `model_objects.py` | dados do sistema: produto, quantidade, unidade, tipo de oferta, oferta e desconto |
+| `catalog.py` | contrato do catálogo de preços |
+| `shopping_cart.py` | guardar os itens da compra; `handle_offers` repassa o cálculo para a calculadora |
+| `teller.py` | caixa: cadastrar ofertas e fechar a compra |
+| `receipt.py` | recibo: itens, descontos e total |
+| `receipt_printer.py` | texto do recibo impresso |
+| `offer_strategies.py` | regras de desconto de cada oferta (Strategy e Template Method) |
+| `offer_strategy_factory.py` | escolher a regra de desconto pelo tipo da oferta (fábrica simples) |
+| `discount_calculator.py` | calcular os descontos das ofertas de uma compra |
+
+### 10.3 Princípios SOLID aplicados
+
+| Princípio | Onde aparece |
+|---|---|
+| Responsabilidade Única | o carrinho só guarda itens, a calculadora calcula, e cada estratégia cuida de uma oferta |
+| Aberto/Fechado | uma oferta nova é uma classe nova e uma linha na tabela da fábrica, sem mexer no carrinho nem nas outras ofertas. Os testes da E6 mostram isso com a oferta inventada "4 por 6,00" |
+| Inversão de Dependência | a calculadora recebe o catálogo pelo construtor e depende do contrato `SupermarketCatalog`. Nos testes, recebe o catálogo de teste |
