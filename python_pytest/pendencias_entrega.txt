@@ -1,0 +1,238 @@
+PENDÊNCIAS PARA A ENTREGA DO TRABALHO AV3
+Projeto: Supermarket Receipt, versão python_pytest
+Branch de trabalho: modernizacao
+Atualizado em 25/11/2026, depois do commit e844e13
+
+Este arquivo lista o que ainda falta para a entrega, conferido item por item contra o
+enunciado (Trabalho_Modernizacao_Sistema_Legado_Supermarket_Receipt.pdf). Ele é uma lista de
+trabalho da equipe e deve ser apagado antes da entrega final.
+
+
+1. O QUE JÁ ESTÁ PRONTO
+
+- Passos 1 a 5 do enunciado: diagnóstico (docs/diagnostico_tecnico.md), requisitos
+  (docs/requisitos.md, com a rastreabilidade na seção 7.2) e plano de contingência
+  (docs/plano_contingencia.md).
+- Passo 6: testes de caracterização (tests/test_comportamento_legado.py, 40 testes).
+- Passo 7: linha de base de segurança (docs/evidencias/antes/05 a 07).
+- Passo 8: refatoração com Strategy e Template Method, mais uma fábrica simples
+  (src/offer_strategies.py, src/offer_strategy_factory.py, src/discount_calculator.py).
+- Passo 9: combos (src/bundle_calculator.py, tests/test_combos.py).
+- Passo 10: regressão. 100 testes passando e cobertura de 100% (docs/evidencias/depois/01 e 02).
+- Passo 11: segurança depois (docs/evidencias/depois/05 a 07) e relatório
+  (docs/seguranca_antes_depois.md).
+- Registro de cada etapa de código: docs/registro_refatoracao.md.
+
+
+2. O QUE FALTA (EXIGIDO NO ENUNCIADO)
+
+2.1 Documento de padrões de projeto, com diagramas
+
+Arquivo: docs/padroes_projeto.md, e depois a versão em PDF.
+
+Onde o enunciado pede:
+- Passo 8: "Apresentem desenho antes/depois".
+- Item 5.5: "Implementar pelo menos dois padrões de projeto, indicá-los nominalmente e
+  justificar o problema resolvido por cada um. Apresentar diagrama de classes simplificado,
+  trechos antes/depois e testes relacionados."
+- Seção 6 (MPS.BR), linha "Padrões e arquitetura": "Padrões aplicados, motivos e diagramas
+  simplificados".
+- Barema: critério "Padrões de projeto, SOLID, Clean Code", 2,0 pontos, observação "Diagrama e
+  evidências". Sem os dois padrões, a nota desse critério é zero.
+
+O que o documento precisa ter:
+a) Os nomes dos padrões: Strategy e Template Method. Citar também a fábrica simples como apoio
+   ao Strategy, explicando que não é o Factory Method do catálogo de padrões (no Factory Method,
+   uma classe base declara o método de criação e as subclasses decidem o que criar; a nossa é
+   uma tabela que escolhe a classe pelo tipo da oferta).
+b) O problema que cada padrão resolve, ligado ao diagnóstico:
+   - Strategy: D1 (um método decide todas as ofertas com if/elif), D2 (a mesma oferta
+     espalhada no método) e D6 (argument com vários significados);
+   - Template Method: D3 (a mesma conta copiada nas três ofertas por quantidade);
+   - fábrica simples: o resto do D1 (a escolha da classe da oferta saiu do carrinho).
+c) Diagrama de classes simplificado do código ANTES, com: ShoppingCart (guarda itens e calcula
+   todas as ofertas no handle_offers), Teller, Receipt, ReceiptItem, Offer, SpecialOfferType,
+   Discount, Product e SupermarketCatalog.
+d) Diagrama de classes simplificado do código DEPOIS, com: a interface IOfferStrategy;
+   PercentDiscountStrategy; a classe base abstrata QuantityOfferStrategy e as três filhas
+   ThreeForTwoStrategy, TwoForAmountStrategy e FiveForAmountStrategy; OfferStrategyFactory;
+   DiscountCalculator; BundleCalculator e Bundle; ShoppingCart (só guarda itens e repassa);
+   Teller (cadastra ofertas e combos e fecha a compra).
+e) Trechos de código antes e depois. Já estão prontos em docs/registro_refatoracao.md, seções
+   6.3 (Strategy), 7.3 (Template Method) e 8.3 (fábrica).
+f) Testes relacionados: tests/test_estrategias_oferta.py (ofertas isoladas, classe base e a
+   oferta inventada "4 por 6,00", QuatroPorSeis, que mostra o benefício do Template Method),
+   tests/test_fabrica_ofertas.py e tests/test_calculadora_descontos.py.
+g) Os princípios SOLID aplicados. A tabela já está em docs/registro_refatoracao.md, seção 10.3.
+
+A decidir: o formato do diagrama. Opções: diagrama em Mermaid dentro do Markdown, que o GitHub
+desenha sozinho, ou imagem (PNG ou SVG) gerada à parte. O formato escolhido precisa sair também
+no PDF.
+
+
+2.2 Documento de evidências de testes
+
+Arquivo: docs/evidencias_testes.md, e depois a versão em PDF.
+
+Onde o enunciado pede:
+- Item 5.7: "Cobrir cenários de fronteira e demonstrar preservação de comportamento
+  antes/depois."
+- Item 5.9: "Anexar logs ou prints de execução, comparativo de testes, resultados das
+  auditorias e cobertura, quando disponível."
+- Estrutura sugerida (seção 7): docs/evidencias_testes.pdf.
+
+Situação: os logs já existem em docs/evidencias/antes e docs/evidencias/depois, com uma linha
+de comparação nos cabeçalhos. Falta um documento único que junte tudo, para quem avalia não ter
+de abrir vários .txt. Não é preciso rodar nada de novo.
+
+O que o documento precisa ter:
+a) Tabela de antes e depois: testes (1 no original, 41 com a caracterização, 100 no final),
+   cobertura total (71%, 100%, 100%) e cobertura por arquivo (shopping_cart.py: 41% para 100%).
+b) Ambiente igual antes e depois: mesmo Python, mesmas 24 bibliotecas
+   (antes/00_ambiente.txt e depois/00_ambiente.txt).
+c) Prova da preservação do comportamento: os 40 testes de caracterização rodaram no código
+   original (antes/03) e passaram no final sem nenhuma alteração; o teste original
+   (tests/test_supermarket.py) também não foi alterado.
+d) Os cenários de fronteira cobertos: abaixo, no limite e acima da quantidade mínima de cada
+   oferta, frações de peso, carrinho vazio, combo incompleto, combos repetidos, excedentes,
+   combos com produto em comum e convivência com ofertas.
+e) Índice dos arquivos de evidência, com o que cada um contém, e os comandos para reproduzir.
+
+A decidir: documento próprio (recomendado, porque a estrutura sugerida cita o arquivo) ou
+apenas uma seção no README.
+
+
+2.3 Lições aprendidas
+
+Arquivo sugerido: docs/licoes_aprendidas.md, e depois a versão em PDF.
+
+Onde o enunciado pede:
+- Seção 6 (MPS.BR), linha "Lições aprendidas": "Limitações e decisões relevantes", com a
+  finalidade "Reflexão sobre o processo".
+
+Conteúdo sugerido:
+- A decisão de manter os defeitos D5, D10, D12, D13 e o nome TEN_PERCENT_DISCOUNT (D8), e por
+  quê: preservar as regras e comparar saídas idênticas antes e depois.
+- Testes de caracterização antes de mexer: foram eles que permitiram refatorar com segurança.
+- Commits pequenos, com testes e cobertura conferidos antes de cada um.
+- O cuidado com arredondamento de números decimais (risco R2) e a comparação exata das ofertas
+  antes e depois do Template Method.
+- O enunciado sugere Factory Method, mas o que o problema pedia era uma fábrica simples; os dois
+  padrões que contam são Strategy e Template Method.
+- As ferramentas de segurança em ambiente separado e a limitação do Safety (scan exige conta,
+  check descontinuado).
+- Decisões que mudaram durante o processo e como foram registradas: o apelido
+  PERCENT_DISCOUNT foi descartado; as correções do D12 e do D13 foram canceladas em favor de
+  manter os defeitos.
+- Limitações que continuam: requirements.txt sem versões fixas; ausência de alertas não prova
+  segurança.
+
+
+2.4 README
+
+Arquivo: README.md da pasta python_pytest. O atual é o original do kata, em inglês, com só a
+descrição do exercício e três linhas de instalação. Precisa ser reescrito.
+
+Onde o enunciado pede:
+- Passo 12: "Finalizem documentação, README, evidências, código e uma apresentação breve".
+- Item 5.9: "Criar README com dependências, ambiente, execução, testes, análises de segurança,
+  estrutura de pastas e decisões arquiteturais."
+- Barema: critério "README e organização", 0,5 ponto, observação "Execução independente". Ou
+  seja, alguém de fora precisa conseguir rodar o projeto só lendo o README.
+
+O que o README precisa ter:
+a) Dependências: o requirements.txt (pytest, approvaltests, pytest-approvaltests e coverage),
+   igual ao original, e o Python usado (3.11.5).
+b) Ambiente: Windows 10, ambiente virtual (venv), terminal cmd. Avisar que o PowerShell grava
+   arquivos de saída em outra codificação.
+c) Execução: criar a venv, ativar, instalar as dependências, rodar os testes.
+d) Testes: pytest -v, a cobertura (coverage run --source=src -m pytest e coverage report -m) e
+   o que cada arquivo de teste verifica.
+e) Análises de segurança: o ambiente separado das ferramentas, as versões (Bandit 1.9.4,
+   pip-audit 2.10.1, Safety 3.8.1), os comandos e onde estão as evidências e o relatório.
+f) Estrutura de pastas: src, tests, docs, docs/evidencias/antes e docs/evidencias/depois.
+   Explicar que a pasta docs fica dentro de python_pytest, e não na raiz como na estrutura
+   sugerida, porque o repositório-base tem várias linguagens; o enunciado diz que a estrutura é
+   ilustrativa e pede para preservar os arquivos do repositório-base.
+g) Decisões arquiteturais: Strategy, Template Method, fábrica simples, calculadoras separadas
+   do carrinho, combos em classe própria, interfaces públicas mantidas e os itens mantidos por
+   decisão da equipe (plano de contingência, seção 3.1).
+h) Lista dos documentos de docs/, com uma linha sobre cada um.
+
+
+2.5 Versões em PDF dos documentos
+
+Onde o enunciado pede:
+- Estrutura sugerida (seção 7): docs/diagnostico_tecnico.pdf, docs/requisitos.pdf,
+  docs/plano_contingencia.pdf, docs/padroes_projeto.pdf, docs/seguranca_antes_depois.pdf e
+  docs/evidencias_testes.pdf.
+
+Situação: hoje os documentos estão só em Markdown (.md). A estrutura é ilustrativa, mas
+entregar também em PDF evita qualquer discussão.
+
+Como fazer:
+- Gerar os PDFs por último, depois que os .md estiverem finais, para não ter de refazer.
+- Manter os .md no repositório, porque são a fonte, e acrescentar os .pdf ao lado.
+- Conferir no PDF as tabelas, os trechos de código e os diagramas.
+- Decidir se docs/registro_refatoracao.md e docs/licoes_aprendidas.md também viram PDF (não
+  estão na lista sugerida, mas fazem parte da documentação).
+
+A decidir: a forma de gerar os PDFs (por exemplo, extensão do VS Code que exporta Markdown para
+PDF, ou abrir no navegador e imprimir como PDF).
+
+
+2.6 Apresentação
+
+Arquivo: apresentacao/slides.pdf (estrutura sugerida).
+
+Onde o enunciado pede:
+- Passo 12: "uma apresentação breve com problemas, decisões, padrões aplicados e resultados".
+- Item 5.10: "Apresentação objetiva de 10 a 15 minutos, com problema inicial, plano, princípios
+  SOLID adotados, padrões adotados, regra de combos, resultados de teste e análise de
+  segurança." e "Apresentar justificativas técnicas e evidências, não somente demonstrar o
+  código em funcionamento."
+
+Roteiro sugerido, com cerca de 1 minuto por slide:
+1. Capa: trabalho, disciplina, equipe.
+2. O sistema e o desafio: caixa de supermercado, ofertas e a nova regra de combos.
+3. Problemas do código original: D1 a D4 e D11, com números (1 teste, 71% de cobertura, um
+   método de 39 linhas decidindo todas as ofertas).
+4. Requisitos e decisões: regras dos combos e decisões P1, P2 e P3.
+5. Plano de contingência: etapas, riscos principais e estratégia de retorno.
+6. Testes de caracterização: de 1 para 41 testes e de 71% para 100% antes de mexer no código.
+7. Princípios SOLID aplicados (registro da refatoração, seção 10.3).
+8. Strategy: problema, diagrama e benefício.
+9. Template Method: problema, diagrama e a oferta inventada "4 por 6,00" nos testes.
+10. Combos: as regras e o exemplo de dois combos com produto em comum (total 36,00).
+11. Resultados dos testes: 100 testes, 100% de cobertura, caracterização sem alteração.
+12. Segurança antes e depois: nenhum alerta, mesmas bibliotecas, limitação do Safety.
+13. Erros identificados e mantidos: D5, D8 (nome), D10, D12 e D13, cada um com a correção
+    proposta (plano de contingência, seção 3.1). Este slide foi pedido pela equipe.
+14. Lições aprendidas e conclusão.
+
+Material pronto para reaproveitar: plano de contingência (seção 3.1, tabela dos itens
+mantidos), registro da refatoração (seções 10 e 11), relatório de segurança e requisitos.
+
+
+3. DECISÕES EM ABERTO
+
+- Conta do Safety: criar uma conta gratuita para rodar o comando safety scan antes e depois, ou
+  manter só a evidência da tentativa, que o enunciado aceita (item 5.8). Se a conta for criada,
+  rodar o scan nas duas situações e atualizar as evidências 07 e o relatório de segurança.
+- Documento de evidências de testes: documento próprio ou seção no README (item 2.2).
+- Formato dos diagramas (item 2.1) e forma de gerar os PDFs (item 2.5).
+- Opcional: acrescentar o arquivo .coverage ao .gitignore, num commit "chore:". Não é exigido,
+  mas evita que alguém envie esse arquivo por engano.
+
+
+4. OUTRAS PENDÊNCIAS (FORA DO ENUNCIADO)
+
+- Migrar para o repositório definitivo do grupo. O repositório atual é provisório. A entrega é a
+  branch modernizacao.
+- Se houver oportunidade, validar com o professor a regra de convivência dos combos (RF16) e a
+  decisão de manter os defeitos.
+- Preparação para a defesa: cada integrante deve estudar os arquivos do código refatorado
+  (src/offer_strategies.py, src/offer_strategy_factory.py, src/discount_calculator.py,
+  src/bundle_calculator.py, src/teller.py e src/shopping_cart.py) e os testes, para saber
+  explicar os padrões, a regra dos combos e as decisões.
+- Apagar este arquivo antes da entrega final.
