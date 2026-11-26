@@ -1,9 +1,6 @@
 # Plano de contingência e refatoração
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: commit c72d68a do repositório original, o diagnóstico em `docs/diagnostico_tecnico.md` e
-os requisitos em `docs/requisitos.md`.
-Data: 25/11/2026.
 
 ## 1. Objetivo
 

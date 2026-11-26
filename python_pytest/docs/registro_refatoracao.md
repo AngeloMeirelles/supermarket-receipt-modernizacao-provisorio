@@ -1,8 +1,6 @@
 # Registro da refatoração
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: etapas definidas no plano de contingência (`docs/plano_contingencia.md`, seção 2).
-Data: 25/11/2026.
 
 ## 1. Objetivo
 

@@ -1,8 +1,6 @@
 # Requisitos
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: commit c72d68a do repositório original e o diagnóstico em `docs/diagnostico_tecnico.md`.
-Data: 24/11/2026. Revisado em 25/11/2026.
 
 ## 1. Escopo
 

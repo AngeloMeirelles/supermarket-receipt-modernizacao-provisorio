@@ -1,8 +1,6 @@
 # Diagnóstico técnico do código legado
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Código analisado: commit c72d68a do repositório original, sem alterações.
-Data: 24/11/2026.
 
 ## 1. Como a análise foi feita
 

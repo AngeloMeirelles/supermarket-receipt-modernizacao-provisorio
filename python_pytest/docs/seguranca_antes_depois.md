@@ -1,9 +1,6 @@
 # Análise de segurança antes e depois
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Evidências: `docs/evidencias/antes/` (linha de base, etapa E2 do plano de contingência) e
-`docs/evidencias/depois/` (reavaliação, etapa E11).
-Data: 25/11/2026.
 
 ## 1. Objetivo
 
