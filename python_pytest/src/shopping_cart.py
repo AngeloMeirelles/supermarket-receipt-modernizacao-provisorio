@@ -1,6 +1,6 @@
 from catalog import SupermarketCatalog
+from discount_calculator import DiscountCalculator
 from model_objects import ProductQuantity, Offer, Product
-from offer_strategy_factory import OfferStrategyFactory
 from receipt import Receipt
 
 
@@ -29,13 +29,5 @@ class ShoppingCart:
             self._product_quantities[product] = quantity
 
     def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog: SupermarketCatalog) -> None:
-        for product in self._product_quantities.keys():
-            quantity = self._product_quantities[product]
-            if product in offers.keys():
-                offer = offers[product]
-                unit_price = catalog.unit_price(product)
-                strategy = OfferStrategyFactory.create(offer)
-                if strategy:
-                    discount = strategy.calculate_discount(product, quantity, unit_price)
-                    if discount:
-                        receipt.add_discount(discount)
+        for discount in DiscountCalculator(catalog).offer_discounts(self._product_quantities, offers):
+            receipt.add_discount(discount)
