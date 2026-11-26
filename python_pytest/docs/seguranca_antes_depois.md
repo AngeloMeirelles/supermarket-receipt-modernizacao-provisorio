@@ -1,42 +1,33 @@
+
 # Análise de segurança antes e depois
 
 Projeto: Supermarket Receipt, versão python_pytest.
 
 ## 1. Objetivo
 
-Este relatório registra a análise de segurança feita com Bandit, pip-audit e Safety antes e
-depois da modernização: versões, escopo e comandos, resultados, triagem de cada mensagem das
-ferramentas, ações tomadas, o que não foi corrigido e por quê, comparação entre antes e depois e
-as limitações encontradas (item 5.8 do enunciado).
+Este relatório registra a análise de segurança realizada com Bandit, pip-audit e Safety antes e depois da modernização. São apresentados as versões das ferramentas, o escopo e os comandos utilizados, os resultados, a triagem de cada mensagem, as ações tomadas, os itens não corrigidos e suas justificativas, a comparação entre antes e depois e as limitações encontradas (item 5.8 do enunciado).
 
 ## 2. Ferramentas, versões e ambiente
 
 | Ferramenta | Versão | O que analisa | Escopo neste trabalho |
 |---|---|---|---|
-| Bandit | 1.9.4 | o código Python, procurando padrões inseguros conhecidos, como senha escrita no código, uso de `eval` ou comando do sistema montado com texto de fora | a pasta `src/`, que é o código do sistema |
-| pip-audit | 2.10.1 | as bibliotecas usadas pelo projeto, comparando cada versão com uma base pública de vulnerabilidades conhecidas | as 24 bibliotecas instaladas na venv do projeto |
-| Safety | 3.8.1 | as mesmas bibliotecas, com a base de vulnerabilidades da empresa Safety | as mesmas 24 bibliotecas |
+| Bandit | 1.9.4 | O código Python, procurando padrões inseguros conhecidos, como senhas escritas no código, uso de `eval` ou comandos do sistema montados com texto externo. | A pasta `src/`, que contém o código do sistema. |
+| pip-audit | 2.10.1 | As bibliotecas usadas pelo projeto, comparando cada versão com uma base pública de vulnerabilidades conhecidas. | As 24 bibliotecas instaladas na venv do projeto. |
+| Safety | 3.8.1 | As mesmas bibliotecas, usando a base de vulnerabilidades da empresa Safety. | As mesmas 24 bibliotecas. |
 
 Ambiente: Windows 10 (versão 10.0.19045.6466) e Python 3.11.5.
 
-As três ferramentas foram instaladas num ambiente virtual separado, fora do repositório, em
-`D:\faculdade\alta-qualidade-av3\venv-ferramentas`. Elas trazem dezenas de bibliotecas próprias.
-Se fossem instaladas na venv do projeto, o pip-audit e o Safety analisariam também essas
-bibliotecas, e o resultado deixaria de ser só do projeto. As mesmas versões foram usadas antes e
-depois, para a comparação ser justa.
+As três ferramentas foram instaladas em um ambiente virtual separado, fora do repositório, em `D:\faculdade\alta-qualidade-av3\venv-ferramentas`. Elas possuem dezenas de bibliotecas próprias. Se fossem instaladas na venv do projeto, o pip-audit e o Safety também analisariam essas bibliotecas, e o resultado deixaria de representar apenas as dependências do projeto. As mesmas versões foram usadas antes e depois para garantir uma comparação consistente.
 
-A lista exata das bibliotecas do projeto foi gravada com `pip freeze` em
-`dependencias_projeto.txt`, nas pastas `antes` e `depois`. As duas listas são iguais.
+A lista exata das bibliotecas do projeto foi gerada com `pip freeze` e gravada em `dependencias_projeto.txt`, nas pastas `antes` e `depois`. As duas listas são iguais.
 
-Os testes ficaram fora da análise do Bandit. Eles usam `assert` o tempo todo, e o Bandit aponta
-cada `assert` como alerta, porque em código de produção ele pode ser desligado. Em teste, esse
-uso é o normal e não afeta o sistema.
+Os testes ficaram fora da análise do Bandit. Eles usam `assert` frequentemente, e o Bandit aponta cada `assert` como alerta porque, em código de produção, ele pode ser desligado. Nos testes, esse uso é normal e não afeta o funcionamento do sistema.
 
 ## 3. Comandos
 
-Os mesmos comandos foram usados antes e depois, trocando só a pasta das evidências:
+Os mesmos comandos foram utilizados antes e depois, alterando apenas a pasta de destino das evidências:
 
-```
+```powershell
 python -m pip freeze > docs\evidencias\antes\dependencias_projeto.txt
 bandit --version
 bandit -r src
@@ -49,92 +40,67 @@ safety check -r docs\evidencias\antes\dependencias_projeto.txt
 safety scan --target . < NUL
 ```
 
-- `--no-deps` diz ao pip-audit que a lista já está completa, com as versões exatas. Sem essa
-  opção, ele montaria um ambiente temporário para descobrir as dependências e poderia pegar
-  versões diferentes das que o projeto usa.
-- `PYTHONIOENCODING` e `NO_COLOR` evitam que o Safety pare com erro de codificação ao gravar o
-  arquivo ou grave códigos de cor no meio do texto. Mesmo assim, ele gravou códigos de cor, que
-  foram removidos das evidências sem mudar o texto, como anotado no cabeçalho delas.
-- `< NUL` entrega uma entrada vazia para a pergunta de login do `safety scan` (seção 6).
+- `--no-deps` informa ao pip-audit que a lista já contém todas as dependências, com suas versões exatas. Sem essa opção, ele criaria um ambiente temporário para descobrir as dependências e poderia obter versões diferentes das utilizadas pelo projeto.
+- `PYTHONIOENCODING` e `NO_COLOR` foram definidos para evitar que o Safety apresentasse erro de codificação ao gravar o arquivo ou inserisse códigos de cor no texto. Mesmo assim, foram gravados códigos de cor, que foram removidos das evidências sem alterar o conteúdo, conforme anotado nos cabeçalhos dos arquivos.
+- `< NUL` fornece uma entrada vazia para a solicitação de login do comando `safety scan` (seção 6).
 
 ## 4. Resultados
 
 | Ferramenta | Antes | Depois | Evidências |
 |---|---|---|---|
 | Bandit | 133 linhas analisadas, nenhum problema | 319 linhas analisadas, nenhum problema | `antes/05_bandit.txt` e `depois/05_bandit.txt` |
-| pip-audit | 24 bibliotecas, nenhuma vulnerabilidade conhecida, 2 avisos sobre hashes | igual | `antes/06_pip_audit.txt` e `depois/06_pip_audit.txt` |
-| Safety, comando `check` | 24 bibliotecas, nenhuma vulnerabilidade, aviso de comando descontinuado | igual | `antes/07_safety.txt` e `depois/07_safety.txt` |
-| Safety, comando `scan` | não rodou: exige conta | não rodou: exige conta | `antes/07_safety.txt` e `depois/07_safety.txt` |
+| pip-audit | 24 bibliotecas, nenhuma vulnerabilidade conhecida, 2 avisos sobre hashes | Igual | `antes/06_pip_audit.txt` e `depois/06_pip_audit.txt` |
+| Safety, comando `check` | 24 bibliotecas, nenhuma vulnerabilidade, aviso de comando descontinuado | Igual | `antes/07_safety.txt` e `depois/07_safety.txt` |
+| Safety, comando `scan` | Não executou a análise: exige conta | Não executou a análise: exige conta | `antes/07_safety.txt` e `depois/07_safety.txt` |
 
-O código de `src/` mais que dobrou com a modernização, de 133 para 319 linhas (ofertas, fábrica,
-calculadoras e combos), e o Bandit continuou sem nenhum alerta. As bibliotecas do projeto não mudaram, então o resultado
-do pip-audit e do Safety também não mudou.
+O código de `src/` mais que dobrou com a modernização, passando de 133 para 319 linhas, com a inclusão das ofertas, da fábrica, das calculadoras e dos combos. Mesmo com esse aumento, o Bandit continuou sem apontar alertas. Como as bibliotecas do projeto não mudaram, os resultados do pip-audit e do Safety também permaneceram iguais.
 
 ## 5. Triagem das mensagens
 
-Nenhuma ferramenta apontou vulnerabilidade. Mesmo assim, elas mostraram mensagens que precisam
-ser entendidas, porque nem toda mensagem de ferramenta de segurança é uma vulnerabilidade.
+Nenhuma ferramenta apontou vulnerabilidades. Mesmo assim, foram exibidas mensagens que precisam ser interpretadas, pois nem toda mensagem de uma ferramenta de segurança representa uma vulnerabilidade.
 
 | Mensagem | Ferramenta | Classificação | Relevância para o projeto | Ação |
 |---|---|---|---|---|
-| "--no-deps is supported, but users are encouraged to fully hash their pinned dependencies" e a sugestão de usar `pip-compile` | pip-audit | recomendação de boa prática, não é vulnerabilidade | baixa. Hashes são impressões digitais dos arquivos das bibliotecas e garantem que o arquivo instalado é exatamente o publicado. Protegem contra um pacote adulterado durante a instalação | não corrigido (seção 7) |
-| "this command (`check`) has been DEPRECATED" | Safety | aviso de que o comando vai deixar de existir | não afeta o projeto. Afeta a ferramenta: o comando pode parar de funcionar numa análise futura | registrado como limitação (seção 6) |
-| `AuthlibDeprecationWarning` sobre `authlib.jose` e `httpx` | Safety | aviso interno de bibliotecas usadas pelo próprio Safety | nenhuma. São bibliotecas do ambiente das ferramentas, não do projeto | nenhuma |
-| "Please login or register Safety CLI" e "EOF when reading a line" | Safety | limitação de acesso | o `scan` não analisou nada. As bibliotecas foram verificadas pelo pip-audit e pelo `safety check` | tentativa registrada (seção 6) |
+| `"--no-deps is supported, but users are encouraged to fully hash their pinned dependencies"` e a sugestão de usar `pip-compile` | pip-audit | Recomendação de boa prática, não é vulnerabilidade. | Baixa. Hashes são impressões digitais dos arquivos das bibliotecas e ajudam a garantir que o arquivo instalado corresponde exatamente ao publicado. Protegem contra a instalação de um pacote adulterado. | Não corrigido (seção 7). |
+| `"this command (check) has been DEPRECATED"` | Safety | Aviso de que o comando será descontinuado. | Não afeta o projeto diretamente. Afeta a ferramenta: o comando pode deixar de funcionar em uma análise futura. | Registrado como limitação (seção 6). |
+| `AuthlibDeprecationWarning` sobre `authlib.jose` e `httpx` | Safety | Aviso interno relacionado às bibliotecas utilizadas pelo próprio Safety. | Nenhuma. São bibliotecas do ambiente das ferramentas, não do projeto. | Nenhuma ação necessária. |
+| `"Please login or register Safety CLI"` e `"EOF when reading a line"` | Safety | Limitação de acesso. | O comando `scan` não realizou a análise. As bibliotecas foram verificadas pelo pip-audit e pelo comando `safety check`. | Tentativa registrada (seção 6). |
 
 ## 6. Limitação de acesso do Safety
 
-O Safety tem dois comandos para analisar dependências. O `check`, antigo, funciona sem conta e foi
-o que gerou o resultado. O `scan`, novo, exige uma conta gratuita no serviço da empresa Safety.
-Sem login, ele pergunta se a pessoa quer se registrar ou entrar e espera a resposta.
+O Safety disponibiliza dois comandos para analisar dependências. O `check`, mais antigo, funciona sem conta e foi o que gerou o resultado apresentado neste relatório. O `scan`, mais novo, exige uma conta gratuita no serviço da empresa Safety. Sem login, ele solicita que a pessoa se registre ou entre na conta e aguarda uma resposta.
 
-Para registrar a limitação, o `scan` foi executado com entrada vazia (`< NUL`). Ele mostrou a
-pergunta de login e parou com "EOF when reading a line". Essa saída está nas evidências 07, antes
-e depois, como o item 5.8 do enunciado pede para o caso de a ferramenta exigir conta.
+Para registrar essa limitação, o comando `scan` foi executado com uma entrada vazia (`< NUL`). Ele exibiu a solicitação de login e foi interrompido com a mensagem `"EOF when reading a line"`. Essa saída está registrada nas evidências 07, antes e depois, atendendo ao item 5.8 do enunciado para situações em que a ferramenta exige uma conta.
 
-A equipe não criou conta no serviço, porque o enunciado aceita a evidência da tentativa e as
-bibliotecas já foram verificadas por duas ferramentas. Se a conta for criada, o `scan` pode ser
-repetido antes e depois e este relatório atualizado.
+A equipe não criou uma conta no serviço, pois o enunciado aceita a evidência da tentativa e as bibliotecas já foram verificadas por duas ferramentas. Caso uma conta seja criada, o `scan` poderá ser executado novamente antes e depois, e este relatório poderá ser atualizado.
 
 ## 7. Correções e itens não corrigidos
 
-Nenhuma correção de segurança foi necessária, porque nenhuma ferramenta apontou vulnerabilidade,
-nem antes nem depois.
+Nenhuma correção de segurança foi necessária, pois nenhuma ferramenta apontou vulnerabilidades, nem antes nem depois da modernização.
 
-A modernização também não piorou o quadro:
+A modernização também não piorou o cenário:
 
-- nenhuma biblioteca foi acrescentada ao projeto (RNF07). A lista de antes e a de depois são
-  iguais;
-- as ferramentas de segurança ficaram fora do ambiente do projeto;
-- o código novo usa só a biblioteca padrão do Python, sem acesso a arquivos, rede, banco de dados
-  ou comandos do sistema.
+- nenhuma biblioteca foi acrescentada ao projeto (RNF07). As listas de antes e depois são iguais;
+- as ferramentas de segurança foram mantidas fora do ambiente virtual do projeto;
+- o código novo utiliza apenas a biblioteca padrão do Python, sem acesso a arquivos, rede, banco de dados ou comandos do sistema.
 
-Item não corrigido: o uso de hashes recomendado pelo pip-audit. Adotar essa prática exigiria
-mudar o `requirements.txt`, fixando versões e hashes, e provavelmente usar uma ferramenta nova
-para gerá-los. O RNF07 pede o `requirements.txt` igual ao original, e o enunciado orienta evitar
-dependências desnecessárias. Além disso, o código do sistema não usa nenhuma das 24 bibliotecas:
-todas são ferramentas de teste (pytest, coverage, approvaltests e as dependências delas). Fica
-registrado como recomendação para o futuro.
+**Item não corrigido: recomendação de uso de hashes pelo pip-audit.**
+
+Adotar essa prática exigiria alterar o `requirements.txt`, fixando versões e hashes, e provavelmente utilizar uma ferramenta nova para gerá-los. O RNF07 determina que o `requirements.txt` permaneça igual ao original, e o enunciado orienta evitar dependências desnecessárias.
+
+Além disso, o código do sistema não utiliza nenhuma das 24 bibliotecas analisadas: todas são ferramentas de teste (pytest, coverage, approvaltests e suas dependências). Portanto, a recomendação fica registrada para uma possível adoção futura.
 
 ## 8. Riscos remanescentes
 
-A ausência de alertas não prova que o sistema é seguro. Cada ferramenta tem um alcance limitado:
+A ausência de alertas não comprova que o sistema seja totalmente seguro. Cada ferramenta possui um alcance limitado:
 
-- o Bandit procura padrões conhecidos no código. Ele não entende a regra de negócio. Por exemplo,
-  os defeitos de cálculo D12 e D13, mantidos por decisão da equipe, não são detectados por
-  ferramenta de segurança: foram encontrados na leitura do código e registrados nos testes de
-  caracterização;
-- o pip-audit e o Safety só conhecem vulnerabilidades já publicadas nas suas bases. Uma falha
-  descoberta depois da análise não aparece;
-- o `requirements.txt` não fixa versões. Uma instalação nova pode trazer versões diferentes das
-  24 analisadas, e essas versões precisariam ser auditadas de novo;
-- o `safety check` está descontinuado e pode parar de funcionar, o que afeta a repetição desta
-  análise no futuro.
+- O Bandit procura padrões conhecidos no código, mas não entende as regras de negócio. Por exemplo, os defeitos de cálculo D12 e D13, mantidos por decisão da equipe, não são detectados por ferramentas de segurança. Eles foram encontrados durante a leitura do código e registrados nos testes de caracterização.
+- O pip-audit e o Safety identificam apenas vulnerabilidades já publicadas em suas bases. Uma falha descoberta posteriormente não aparecerá nos resultados desta análise.
+- O `requirements.txt` não fixa versões. Uma nova instalação pode trazer versões diferentes das 24 analisadas, que precisariam passar por uma nova auditoria.
+- O comando `safety check` está descontinuado e pode deixar de funcionar, o que afetaria a repetição desta análise no futuro.
 
 ## 9. Conclusão
 
-Antes e depois da modernização, o Bandit não apontou nenhum problema no código, e o pip-audit e o
-Safety não encontraram vulnerabilidade nas 24 bibliotecas do projeto. A modernização mais
-que dobrou o código de `src/` sem trazer alertas e sem acrescentar bibliotecas. As mensagens das
-ferramentas foram analisadas: nenhuma é vulnerabilidade do projeto. A limitação do `safety scan`,
-que exige conta, foi registrada com a evidência da tentativa.
+Antes e depois da modernização, o Bandit não apontou problemas no código, e o pip-audit e o Safety não encontraram vulnerabilidades nas 24 bibliotecas do projeto. A modernização mais que dobrou o código de `src/` sem gerar alertas e sem acrescentar bibliotecas.
+
+As mensagens apresentadas pelas ferramentas foram analisadas, e nenhuma foi identificada como vulnerabilidade do projeto. A limitação do `safety scan`, que exige uma conta, também foi registrada com a evidência da tentativa de execução.

@@ -4,20 +4,17 @@ Projeto: Supermarket Receipt, versão python_pytest.
 
 ## 1. Resumo
 
-O trabalho aplica dois padrões de projeto: Strategy e Template Method. Uma fábrica simples
-completa o Strategy, escolhendo a estratégia de cada oferta. Cada um resolve um problema
-apontado no diagnóstico (`docs/diagnostico_tecnico.md`).
+O trabalho aplica dois padrões de projeto: Strategy e Template Method. Uma fábrica simples complementa o Strategy, escolhendo a estratégia de cada oferta. Cada padrão resolve problemas identificados no diagnóstico técnico (`docs/diagnostico_tecnico.md`).
 
 | Padrão | Onde | Problema resolvido | Testes |
 |---|---|---|---|
 | Strategy | `src/offer_strategies.py`: interface `IOfferStrategy` e uma classe por oferta | D1 (um método decide todas as ofertas com `if` e `elif`), D2 (a mesma oferta espalhada no método) e D6 (o valor `argument` com vários significados) | `tests/test_estrategias_oferta.py` |
 | Template Method | `src/offer_strategies.py`: classe base `QuantityOfferStrategy` | D3 (a mesma conta copiada nas três ofertas por quantidade) | `tests/test_estrategias_oferta.py` |
-| Fábrica simples (apoio ao Strategy) | `src/offer_strategy_factory.py`: `OfferStrategyFactory` | o resto do D1: a escolha da classe de cada oferta saiu do carrinho | `tests/test_fabrica_ofertas.py` |
+| Fábrica simples (apoio ao Strategy) | `src/offer_strategy_factory.py`: `OfferStrategyFactory` | o restante do D1: a escolha da classe de cada oferta saiu do carrinho | `tests/test_fabrica_ofertas.py` |
 
 ## 2. Diagrama de classes antes
 
-Diagrama simplificado do código original (commit c72d68a), só com as classes que participam do
-cálculo dos descontos. Os trechos de "antes" deste documento também são desse commit.
+Diagrama simplificado do código original (commit c72d68a), considerando apenas as classes que participam do cálculo dos descontos. Os trechos de código anteriores à modernização apresentados neste documento também correspondem a esse commit.
 
 ```mermaid
 classDiagram
@@ -67,19 +64,15 @@ classDiagram
     Offer --> SpecialOfferType
 ```
 
-Setas cheias indicam que uma classe guarda a outra como atributo. Setas tracejadas indicam que uma
-classe usa a outra.
+Setas cheias indicam que uma classe guarda a outra como atributo. Setas tracejadas indicam que uma classe utiliza a outra.
 
-O ponto central é o `ShoppingCart`. Além de guardar os itens da compra, o método
-`handle_offers` calcula o desconto de todas as ofertas, decidindo o cálculo com uma sequência de
-`if` e `elif` sobre o `SpecialOfferType`. Toda oferta nova obrigaria a mexer nesse método.
+O ponto central é o `ShoppingCart`. Além de guardar os itens da compra, o método `handle_offers` calcula os descontos de todas as ofertas, decidindo o cálculo por meio de uma sequência de `if` e `elif` sobre o `SpecialOfferType`. A inclusão de uma nova oferta exige alterações nesse método.
 
 ## 3. Strategy
 
 ### 3.1 Problema
 
-No código original, o método `handle_offers` (`src/shopping_cart.py`, linhas 30 a 68) decidia o
-cálculo de todas as ofertas:
+No código original, o método `handle_offers` (`src/shopping_cart.py`, linhas 30 a 68) decidia o cálculo de todas as ofertas:
 
 ```python
 def handle_offers(self, receipt, offers, catalog):
@@ -123,24 +116,18 @@ def handle_offers(self, receipt, offers, catalog):
                 receipt.add_discount(discount)
 ```
 
-Os problemas:
+Os problemas identificados são:
 
-- todas as ofertas são decididas no mesmo método (D1). Uma oferta nova, como os combos, exigiria
-  editar esse método e arriscaria quebrar as outras;
-- a mesma oferta aparece em pedaços separados: o "leve 3, pague 2" está no começo e no meio do
-  método (D2);
-- `offer.argument` é o percentual numa oferta, o preço do par em outra e o preço do grupo de
-  cinco em outra (D6);
-- não dá para testar uma oferta sozinha: é preciso montar catálogo, caixa, carrinho e recibo.
+- Todas as ofertas são decididas no mesmo método (D1). A inclusão de uma nova oferta exigiria editar esse método, aumentando o risco de alterações afetarem os cálculos existentes.
+- A mesma oferta aparece em partes separadas do método. O cálculo de "leve 3, pague 2", por exemplo, está dividido entre o início e o meio do código (D2).
+- `offer.argument` representa valores diferentes conforme a oferta: percentual de desconto, preço do par ou preço do grupo de cinco unidades (D6).
+- Não é possível testar uma oferta isoladamente sem montar catálogo, caixa, carrinho e recibo.
 
 ### 3.2 Solução
 
-Strategy: cada forma de calcular o desconto fica numa classe própria, e todas seguem o mesmo
-contrato. Quem usa as ofertas não precisa saber como cada uma calcula; só chama o método do
-contrato. É a mesma ideia do exemplo visto em aula com a interface `IDesconto`.
+Strategy: cada forma de calcular o desconto fica numa classe própria, e todas seguem um contrato comum. Quem utiliza as ofertas não precisa conhecer os detalhes de cada cálculo; basta chamar o método definido pela interface.
 
-O contrato é a interface `IOfferStrategy`, escrita no estilo das aulas, com `abc.ABC` e
-`@abc.abstractmethod`:
+O contrato é a interface `IOfferStrategy`, que utiliza `abc.ABC` e `@abc.abstractmethod` para definir o método obrigatório:
 
 ```python
 class IOfferStrategy(abc.ABC):
@@ -151,7 +138,7 @@ class IOfferStrategy(abc.ABC):
         """Devolve o desconto do produto, ou None quando a oferta não dá desconto."""
 ```
 
-Cada oferta é uma classe que segue esse contrato:
+Cada oferta é representada por uma classe que implementa esse contrato:
 
 | Classe | Oferta | Valor que recebe |
 |---|---|---|
@@ -160,13 +147,11 @@ Cada oferta é uma classe que segue esse contrato:
 | `TwoForAmountStrategy` | 2 por um valor | `pair_price`, o preço do par |
 | `FiveForAmountStrategy` | 5 por um valor | `group_price`, o preço do grupo de cinco |
 
-O valor de cada oferta ganhou um nome claro dentro da sua classe, o que resolve o D6. A classe
-`Offer` continua com o atributo `argument`, porque ele faz parte da interface pública.
+O valor de cada oferta recebe um nome específico dentro da sua classe, eliminando a ambiguidade do D6. A classe `Offer` mantém o atributo `argument`, pois ele faz parte da interface pública existente.
 
 ### 3.3 Depois
 
-O cálculo saiu do carrinho. O `handle_offers` continua existindo, com o mesmo nome e os mesmos
-parâmetros, e só repassa o trabalho para a calculadora:
+O cálculo dos descontos foi retirado do carrinho. O método `handle_offers` continua existindo, com o mesmo nome e os mesmos parâmetros, mas agora repassa o trabalho para a calculadora:
 
 ```python
 def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog: SupermarketCatalog) -> None:
@@ -174,7 +159,7 @@ def handle_offers(self, receipt: Receipt, offers: dict[Product, Offer], catalog:
         receipt.add_discount(discount)
 ```
 
-A calculadora pede a estratégia de cada oferta e chama o contrato, sem saber qual oferta é:
+A calculadora solicita a estratégia correspondente a cada oferta e chama o método definido pelo contrato, sem precisar conhecer os detalhes de cada implementação:
 
 ```python
 for product, quantity in product_quantities.items():
@@ -189,11 +174,11 @@ for product, quantity in product_quantities.items():
 
 ### 3.4 Benefício
 
-- Cada oferta está inteira na sua classe (D2 resolvido).
-- Nenhuma decisão por tipo de oferta ficou no carrinho nem na calculadora (D1 resolvido, com a
-  fábrica da seção 5).
-- Cada oferta pode ser testada sozinha, sem caixa, carrinho nem recibo. Exemplo de
-  `tests/test_estrategias_oferta.py`:
+- Cada oferta tem seu cálculo concentrado em uma classe própria (D2 resolvido).
+- A decisão por tipo de oferta foi retirada do carrinho e da calculadora (D1 resolvido, com o apoio da fábrica).
+- Cada oferta pode ser testada isoladamente, sem a necessidade de montar caixa, carrinho ou recibo.
+
+O arquivo `tests/test_estrategias_oferta.py` apresenta, por exemplo, o teste da oferta "leve 3, pague 2":
 
 ```python
 @pytest.mark.parametrize(
@@ -215,9 +200,7 @@ def test_leve_3_pague_2(quantidade, desconto_esperado):
 
 ### 4.1 Problema
 
-As três ofertas por quantidade ("leve 3, pague 2", "2 por valor" e "5 por valor") calculavam o
-desconto com a mesma conta, escrita três vezes no código original, cada vez com os seus números
-(D3):
+As três ofertas por quantidade ("leve 3, pague 2", "2 por valor" e "5 por valor") realizavam o cálculo do desconto de maneira semelhante, com a mesma estrutura de conta repetida em três partes do código original (D3):
 
 ```python
 # 2 por valor (linha 45)
@@ -232,18 +215,17 @@ discount_total = unit_price * quantity - (
             offer.argument * number_of_x + quantity_as_int % 5 * unit_price)
 ```
 
-A conta é sempre a mesma:
+A estrutura geral do cálculo é:
 
 > desconto = quantidade × preço − (preço do grupo × número de grupos + unidades que sobram × preço)
 
-Uma correção feita numa cópia não valeria para as outras. O defeito D12 nasceu justamente de uma
-das cópias ser diferente.
+A repetição dessa lógica dificulta a manutenção, pois uma correção em uma implementação não é automaticamente aplicada às demais. O defeito D12 está relacionado justamente a uma diferença entre essas implementações.
 
 ### 4.2 Solução
 
-Template Method: a conta fica escrita uma vez, numa classe base, com lacunas que cada oferta
-preenche. A classe base `QuantityOfferStrategy` tem o roteiro fixo no método
-`calculate_discount`:
+Template Method: a estrutura do cálculo fica concentrada em uma classe base, enquanto cada oferta implementa os métodos específicos necessários para definir suas particularidades.
+
+A classe base `QuantityOfferStrategy` estabelece o fluxo do cálculo no método `calculate_discount`:
 
 ```python
 def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None:
@@ -256,23 +238,22 @@ def calculate_discount(self, product: Product, quantity: float, unit_price: floa
     return Discount(product, self._description(), -discount_amount)
 ```
 
-As lacunas são os métodos que cada oferta escreve:
+Os métodos específicos são implementados pelas classes derivadas:
 
-| Lacuna | Leve 3, pague 2 | 2 por valor | 5 por valor |
+| Método | Leve 3, pague 2 | 2 por valor | 5 por valor |
 |---|---|---|---|
 | `_group_size()`: tamanho do grupo | 3 | 2 | 5 |
 | `_price_per_group()`: preço de um grupo completo | 2 × preço da unidade | `pair_price` | `group_price` |
 | `_description()`: texto no recibo | `3 for 2` | `2 for` e o valor | `5 for` e o valor |
-| `_number_of_groups()`: quantos grupos | padrão da classe base | trocado (D12) | padrão da classe base |
+| `_number_of_groups()`: quantidade de grupos | padrão da classe base | sobrescrito (D12) | padrão da classe base |
 
-As três primeiras lacunas são obrigatórias (`@abc.abstractmethod`). A quarta tem um padrão na
-classe base, que conta os grupos inteiros, e só o "2 por valor" troca. O `_` no início dos
-nomes indica que são passos internos: quem usa as ofertas continua chamando só
-`calculate_discount`.
+Os três primeiros métodos são obrigatórios e definidos com `@abc.abstractmethod`. O quarto possui uma implementação padrão na classe base, que calcula a quantidade de grupos completos. A estratégia "2 por valor" sobrescreve esse método.
+
+Os métodos iniciados por `_` são utilizados internamente pelas classes, enquanto quem utiliza as estratégias continua chamando apenas `calculate_discount`.
 
 ### 4.3 Depois
 
-O "leve 3, pague 2" ficou assim, sem nenhuma conta:
+A implementação de "leve 3, pague 2" ficou concentrada nos métodos específicos da estratégia, sem repetir a estrutura geral do cálculo:
 
 ```python
 class ThreeForTwoStrategy(QuantityOfferStrategy):
@@ -288,30 +269,26 @@ class ThreeForTwoStrategy(QuantityOfferStrategy):
         return "3 for 2"
 ```
 
-O "2 por valor" e o "5 por valor" ficaram no mesmo formato. A conta existe só na classe base, e o
-D3 está resolvido. As classes novas foram comparadas com as anteriores em 8.448 casos, com
-frações e preços variados, e deram exatamente os mesmos números.
+As estratégias "2 por valor" e "5 por valor" seguem a mesma estrutura. O cálculo principal permanece concentrado na classe base, resolvendo a duplicação identificada no D3.
+
+As novas classes foram comparadas com as implementações anteriores em 8.448 casos, considerando quantidades fracionadas e diferentes preços. Os resultados numéricos foram iguais aos obtidos pelas implementações originais.
 
 ### 4.4 Defeitos mantidos
 
-A equipe decidiu manter os defeitos de cálculo do código original (plano de contingência, seção
-3.1). Com a conta num lugar só, eles ficaram fáceis de apontar:
+Os defeitos identificados no código original foram mantidos, conforme definido no plano de contingência (seção 3.1). Com o cálculo centralizado na classe base, eles podem ser identificados em pontos específicos:
 
-- D12 ("2 por valor" cobra a mais com quantidade ímpar): está inteiro no método
-  `_number_of_groups` de `TwoForAmountStrategy`, que conta os pares com divisão comum. A correção
-  seria apagar esse método, para valer a contagem de grupos inteiros da classe base;
-- D13 (fração de peso não é cobrada): está numa linha da classe base, porque os grupos e a sobra
-  usam as unidades inteiras e o preço sem oferta usa a quantidade completa.
+- D12 ("2 por valor" cobra a mais com quantidade ímpar): está no método `_number_of_groups` de `TwoForAmountStrategy`, que conta os pares com divisão comum. A correção seria remover essa sobrescrita, utilizando a contagem de grupos inteiros da classe base;
+- D13 (fração de peso não é cobrada): está na classe base, pois os grupos e as sobras utilizam as unidades inteiras, enquanto o preço sem oferta considera a quantidade completa.
 
 ### 4.5 Benefício
 
-Uma oferta nova do mesmo tipo só preenche as lacunas, sem escrever conta. O arquivo
-`tests/test_estrategias_oferta.py` mostra isso com uma oferta inventada só para o teste, "4 por
-6,00":
+Uma nova oferta do mesmo tipo pode ser implementada preenchendo os métodos definidos pela classe base, sem precisar repetir a lógica do cálculo.
+
+O arquivo `tests/test_estrategias_oferta.py` demonstra essa possibilidade com uma oferta adicional utilizada para verificar a extensão da classe base: "4 por 6,00".
 
 ```python
 class QuatroPorSeis(QuantityOfferStrategy):
-    """Oferta inventada só para o teste: 4 unidades por 6,00."""
+    """Oferta adicional para teste: 4 unidades por 6,00."""
 
     def _group_size(self):
         return 4
@@ -323,14 +300,11 @@ class QuatroPorSeis(QuantityOfferStrategy):
         return "4 for 6.0"
 ```
 
-Com 4 unidades a 1,79, o desconto é de 1,16, e abaixo de 4 unidades não há desconto. Nenhuma
-oferta existente precisou mudar (RNF04).
+Com quatro unidades a 1,79, o desconto calculado é de 1,16. Para quantidades inferiores a quatro unidades, não há desconto. A nova implementação utiliza a estrutura existente sem alterar as estratégias das ofertas já implementadas (RNF04).
 
 ## 5. Fábrica simples
 
-Depois do Strategy, faltava tirar do carrinho a escolha da classe de cada oferta. A classe
-`OfferStrategyFactory` faz essa escolha com uma tabela, um dicionário que diz, para cada tipo de
-oferta, como criar a estratégia a partir do valor cadastrado:
+A classe `OfferStrategyFactory` centraliza a escolha da estratégia correspondente a cada tipo de oferta. Essa escolha é feita por meio de um dicionário que associa cada tipo de oferta à criação da estratégia correspondente:
 
 ```python
 _STRATEGY_BUILDERS: dict[SpecialOfferType, Callable[[float], IOfferStrategy]] = {
@@ -341,18 +315,15 @@ _STRATEGY_BUILDERS: dict[SpecialOfferType, Callable[[float], IOfferStrategy]] = 
 }
 ```
 
-Uma oferta nova passa a ser uma linha nova na tabela. Um tipo de oferta desconhecido não gera
-desconto, como no código original.
+A inclusão de um novo tipo de oferta exige adicionar sua associação à tabela de criação. Um tipo de oferta desconhecido não gera uma estratégia, mantendo o comportamento existente no código original.
 
-O enunciado cita o Factory Method como exemplo. A nossa classe é uma fábrica simples, e é
-documentada com esse nome. O Factory Method do catálogo de padrões é outra coisa: uma classe base
-declara o método de criação e as subclasses decidem qual objeto criar. Por isso os dois padrões
-do trabalho são o Strategy e o Template Method, e a fábrica aparece como apoio ao Strategy.
+A fábrica utilizada no projeto é uma fábrica simples. Ela centraliza a criação dos objetos de estratégia, mas não implementa o padrão Factory Method, no qual uma classe base declara um método de criação e as subclasses definem qual objeto será criado.
+
+Por isso, os padrões de projeto aplicados são Strategy e Template Method. A fábrica simples atua como mecanismo de apoio à seleção das estratégias.
 
 ## 6. Diagrama de classes depois
 
-Diagrama simplificado do código modernizado, com as classes do cálculo dos descontos e dos
-combos:
+Diagrama simplificado do código modernizado, incluindo as classes responsáveis pelo cálculo dos descontos e dos combos:
 
 ```mermaid
 classDiagram
@@ -408,44 +379,39 @@ classDiagram
     QuantityOfferStrategy <|-- TwoForAmountStrategy
     QuantityOfferStrategy <|-- FiveForAmountStrategy
     OfferStrategyFactory ..> IOfferStrategy : cria
-    DiscountCalculator ..> OfferStrategyFactory : pede a estratégia
+    DiscountCalculator ..> OfferStrategyFactory : solicita estratégia
     DiscountCalculator ..> IOfferStrategy : calcula
     ShoppingCart ..> DiscountCalculator : repassa
     Teller ..> ShoppingCart : chama handle_offers
     Teller ..> BundleCalculator : descontos de combo
 ```
 
-Como ler o diagrama:
+Como interpretar o diagrama:
 
-- a seta com triângulo vazado e linha tracejada (`IOfferStrategy` para `PercentDiscountStrategy`
-  e `QuantityOfferStrategy`) indica que a classe segue a interface. É o Strategy;
-- a seta com triângulo vazado e linha cheia (`QuantityOfferStrategy` para as três ofertas por
-  quantidade) indica herança. É o Template Method: as três herdam o roteiro da classe base;
-- os métodos em itálico são abstratos, ou seja, as lacunas obrigatórias que cada oferta precisa
-  escrever. O método sublinhado (`create`) é estático;
-- as setas tracejadas simples indicam que uma classe usa a outra.
+- A seta com triângulo vazado e linha tracejada, entre `IOfferStrategy` e `PercentDiscountStrategy` ou `QuantityOfferStrategy`, representa a implementação da interface. Essa relação corresponde ao Strategy;
+- A seta com triângulo vazado e linha cheia, entre `QuantityOfferStrategy` e as três estratégias de ofertas por quantidade, representa herança. Essa relação corresponde ao Template Method;
+- Os métodos em itálico representam métodos abstratos, que devem ser implementados pelas classes derivadas. O método `create` é estático;
+- As setas tracejadas simples representam dependências entre classes.
 
-Comparando com o diagrama de antes, o `ShoppingCart` deixou de calcular as ofertas. Cada regra
-ficou numa classe, a escolha da regra ficou na fábrica, e o cálculo da compra ficou nas
-calculadoras. Os combos, que são a regra nova, entraram com a `BundleCalculator`, sem alterar
-nenhuma classe das ofertas.
+Comparando os dois diagramas, o `ShoppingCart` deixou de calcular diretamente os descontos das ofertas. Cada regra de desconto passou a ser representada por uma estratégia, a escolha dessas estratégias ficou centralizada na fábrica e o cálculo foi separado em classes calculadoras.
+
+Os combos foram implementados por meio da `BundleCalculator`, sem necessidade de alterar as classes responsáveis pelas ofertas individuais.
 
 ## 7. Princípios SOLID
 
 | Princípio | Onde aparece |
 |---|---|
-| Responsabilidade Única | o carrinho só guarda itens, a calculadora calcula, e cada estratégia cuida de uma oferta |
-| Aberto/Fechado | uma oferta nova é uma classe nova e uma linha na tabela da fábrica, sem mexer no carrinho nem nas outras ofertas. A oferta inventada "4 por 6,00" dos testes mostra isso |
-| Inversão de Dependência | a calculadora depende do contrato `IOfferStrategy`, não das classes concretas, e recebe o catálogo pelo construtor. Nos testes, recebe o catálogo de teste |
+| Responsabilidade Única | O carrinho é responsável por armazenar os itens, as calculadoras realizam os cálculos e cada estratégia implementa uma regra de oferta. |
+| Aberto/Fechado | Uma nova oferta pode ser implementada em uma classe própria e registrada na tabela da fábrica, sem alterar o carrinho nem as estratégias existentes. A oferta adicional "4 por 6,00", utilizada nos testes, demonstra essa possibilidade. |
+| Inversão de Dependência | A calculadora depende do contrato `IOfferStrategy`, em vez de depender diretamente das classes concretas. O catálogo é recebido pelo construtor, permitindo também a utilização de um catálogo de teste. |
 
 ## 8. Testes relacionados
 
-| Arquivo | O que mostra |
+| Arquivo | O que demonstra |
 |---|---|
-| `tests/test_estrategias_oferta.py` | as quatro ofertas testadas sozinhas, sem caixa, carrinho nem recibo; a interface e a classe base não podem ser criadas sozinhas; as três ofertas por quantidade usam a mesma classe base; a oferta inventada "4 por 6,00" funciona só preenchendo as lacunas |
-| `tests/test_fabrica_ofertas.py` | cada tipo de oferta gera a classe certa; o valor cadastrado chega à estratégia; um tipo desconhecido não gera estratégia |
-| `tests/test_calculadora_descontos.py` | a calculadora usa as estratégias na ordem dos produtos, sem caixa, carrinho nem recibo |
-| `tests/test_comportamento_legado.py` | os 40 testes de caracterização, escritos sobre o código original, passam sem nenhuma alteração depois da aplicação dos padrões |
+| `tests/test_estrategias_oferta.py` | As quatro ofertas testadas isoladamente, sem caixa, carrinho ou recibo; a interface e a classe base não podem ser instanciadas diretamente; as três ofertas por quantidade utilizam a mesma classe base; a oferta adicional "4 por 6,00" funciona com a implementação dos métodos específicos. |
+| `tests/test_fabrica_ofertas.py` | Cada tipo de oferta gera a classe correspondente; o valor cadastrado é repassado à estratégia; um tipo desconhecido não gera estratégia. |
+| `tests/test_calculadora_descontos.py` | A calculadora utiliza as estratégias na ordem dos produtos, sem depender de caixa, carrinho ou recibo. |
+| `tests/test_comportamento_legado.py` | Os 40 testes de caracterização, escritos com base no código original, passam sem alterações após a aplicação dos padrões. |
 
-O registro de cada etapa, com os commits, está em `docs/registro_refatoracao.md`, seções 6
-(Strategy), 7 (Template Method) e 8 (fábrica simples).
+O registro de cada etapa de desenvolvimento, incluindo os commits correspondentes, está em `docs/registro_refatoracao.md`, nas seções 6 (Strategy), 7 (Template Method) e 8 (fábrica simples).

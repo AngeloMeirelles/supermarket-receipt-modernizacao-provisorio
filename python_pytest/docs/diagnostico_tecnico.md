@@ -59,12 +59,12 @@ if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
     x = 5
 ```
 
-É o mesmo formato do exemplo "antes" do princípio Aberto/Fechado visto em aula (Aula05,
-p. 3), em que uma classe `Desconto` decide o cálculo com `if tipo == ... elif ...`.
+É o mesmo formato do exemplo "antes" do princípio Aberto/Fechado, em que uma classe
+`Desconto` decide o cálculo com `if tipo == ... elif ...`.
 
-Efeitos. Evolução: qualquer oferta nova, incluindo os combos pedidos, obriga a editar este
-método. Manutenção: ao mexer em uma oferta é fácil afetar outra, porque todas usam as mesmas
-variáveis. Testabilidade: não dá para testar uma oferta isoladamente.
+Efeitos. Evolução: qualquer oferta nova obriga a editar este método. Manutenção: ao mexer em
+uma oferta é fácil afetar outra, porque todas usam as mesmas variáveis. Testabilidade: não
+dá para testar uma oferta isoladamente.
 
 #### D2. A mesma oferta está espalhada em pontos diferentes do método
 
@@ -111,10 +111,9 @@ Efeitos. Manutenção: uma correção feita em uma cópia não vale para as outr
 Onde: `src/shopping_cart.py`. Guardar itens: linhas 8 a 28. Calcular descontos: linhas 30
 a 68.
 
-Pelo princípio da Responsabilidade Única, uma classe deve ter "uma única razão para mudar"
-(Aula04, p. 4). O ShoppingCart tem duas: mudar a forma de guardar os itens ou mudar qualquer
-regra de promoção. Os métodos que guardam itens e o cálculo de descontos não têm relação
-entre si.
+Pelo princípio da Responsabilidade Única, uma classe deve ter "uma única razão para mudar".
+O ShoppingCart tem duas: mudar a forma de guardar os itens ou mudar qualquer regra de
+promoção. Os métodos que guardam itens e o cálculo de descontos não têm relação entre si.
 
 Efeitos. Evolução: as regras de promoção crescem dentro de uma classe que deveria só
 representar o carrinho. Testabilidade: para testar um desconto é preciso passar pelo
@@ -138,7 +137,7 @@ disso, nenhum código ou teste chama este método. Por fazer parte da interface 
 Teller, ele não pode simplesmente ser removido.
 
 O princípio da Inversão de Dependência diz que o código deve depender da abstração, do
-contrato, e não de uma implementação específica (Aula06, p. 13-14).
+contrato, e não de uma implementação específica.
 
 Efeitos. Evolução: trocar o FakeCatalog pelo catálogo real quebra o método. Manutenção: o
 método parece funcionar porque só é usado com o catálogo falso.
@@ -183,10 +182,9 @@ Onde: todos os arquivos de `src/`.
 
 Nenhum parâmetro ou retorno indica o tipo esperado. Em `handle_offers(self, receipt, offers,
 catalog)` (`src/shopping_cart.py`, linha 30), por exemplo, só lendo o `teller.py` se descobre
-que `offers` é um dicionário de produto para oferta. Nas aulas, a falta de tipagem estática
-aparece como um dos problemas de qualidade (Aula03, análise estática, p. 7), e os type hints
-como forma de ajudar "na leitura do código" e "na detecção de erros antes de executar"
-(p. 19).
+que `offers` é um dicionário de produto para oferta. A falta de tipagem estática dificulta a
+leitura do código e a identificação de erros antes da execução. Os type hints ajudam a
+explicitar os tipos esperados nos parâmetros e retornos.
 
 Efeitos. Manutenção: erros de tipo só aparecem durante a execução.
 
@@ -213,19 +211,17 @@ A cobertura total é de 71%. No `shopping_cart.py` é de 41%: as linhas 34 a 68,
 cálculos de oferta, não são executadas por nenhum teste.
 
 Também não é possível testar uma fórmula de oferta sozinha, porque ela está dentro do
-`handle_offers` (D1, D4). É preciso montar catálogo, caixa, carrinho e recibo. Nas aulas, o
-teste unitário é o que testa "as menores unidades de software desenvolvidas" (Aula03, testes,
-p. 8).
+`handle_offers` (D1, D4). É preciso montar catálogo, caixa, carrinho e recibo. O teste
+unitário permite verificar as menores unidades de software desenvolvidas.
 
 Efeitos. Testabilidade e manutenção: hoje nada avisa se uma mudança alterar um valor do
-recibo. Os testes são o "cinto de segurança" do código (Aula03, testes, p. 6), e aqui ele
-praticamente não existe.
+recibo. A baixa cobertura dos testes dificulta a identificação de alterações que comprometam
+o comportamento do sistema.
 
 ### 3.7 Defeitos de comportamento
 
-Os dois itens abaixo foram encontrados na leitura do código e ficam aqui só registrados. O
-tratamento de cada um, manter ou corrigir com justificativa, é definido no plano de
-contingência.
+Os dois itens abaixo foram encontrados na leitura do código. O tratamento de cada um, manter
+ou corrigir com justificativa, é definido no plano de contingência.
 
 #### D12. Na oferta "2 por valor", quantidade ímpar é cobrada a mais
 
@@ -270,7 +266,7 @@ Exemplo: maçã a 1,99 o quilo com a oferta "leve 3, pague 2". 3,5 kg custam 3,9
 Onde: `tests/receipt_printer.py`.
 
 A classe ReceiptPrinter monta o texto do recibo impresso, que é uma função do sistema, mas
-está na pasta de testes e não é usada por nenhum teste. Fica registrada como observação.
+está na pasta de testes e não é usada por nenhum teste.
 
 ## 4. Resumo
 
