@@ -39,8 +39,6 @@ class Discount:
 
 
 class Bundle:
-    """Combo: conjunto de dois ou mais produtos diferentes (RF12)."""
-
     def __init__(self, products: list[Product]) -> None:
         if len(products) < 2 or len(set(products)) != len(products):
             raise ValueError("a bundle needs two or more different products")

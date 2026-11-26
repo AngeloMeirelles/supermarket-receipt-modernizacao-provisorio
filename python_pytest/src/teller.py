@@ -16,7 +16,6 @@ class Teller:
         self.offers[product] = Offer(offer_type, product, argument)
 
     def add_bundle_offer(self, products: list[Product]) -> None:
-        """Cadastra um combo de dois ou mais produtos diferentes (RF12)."""
         self.bundles.append(Bundle(products))
 
     def checks_out_articles_from(self, the_cart: ShoppingCart) -> Receipt:

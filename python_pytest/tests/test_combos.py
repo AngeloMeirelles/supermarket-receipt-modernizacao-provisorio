@@ -1,8 +1,3 @@
-"""Testes dos combos promocionais (RF11 a RF17 e seção 6 dos requisitos).
-
-Preços do enunciado: escova a 10,00 e creme dental a 15,00. O fio dental a 5,00 e a maçã a 2,00
-o quilo completam os casos de combos com produto em comum e de produto vendido por peso.
-"""
 import pytest
 
 from bundle_calculator import BundleCalculator
@@ -32,14 +27,12 @@ def catalogo():
 
 @pytest.fixture
 def caixa_com_combo(catalogo):
-    """Caixa com o combo do enunciado: escova e creme dental."""
     caixa = Teller(catalogo)
     caixa.add_bundle_offer([ESCOVA, CREME_DENTAL])
     return caixa
 
 
 def fechar_compra(caixa, *itens):
-    """Monta um carrinho com os pares (produto, quantidade) e fecha a compra no caixa."""
     carrinho = ShoppingCart()
     for produto, quantidade in itens:
         carrinho.add_item_quantity(produto, quantidade)
@@ -49,8 +42,6 @@ def fechar_compra(caixa, *itens):
 def linhas_de_desconto(recibo):
     return [(desconto.product, desconto.description, desconto.discount_amount) for desconto in recibo.discounts]
 
-
-# Critérios de aceitação da seção 6 dos requisitos (RF13 e RF14)
 
 def test_combo_completo(caixa_com_combo):
     recibo = fechar_compra(caixa_com_combo, (ESCOVA, 1), (CREME_DENTAL, 1))
@@ -89,8 +80,6 @@ def test_produto_excedente_paga_preco_normal(caixa_com_combo):
     assert recibo.total_price() == pytest.approx(32.50)
 
 
-# Cadastro do combo (RF12)
-
 def test_cadastro_de_combo_com_produtos_diferentes(catalogo):
     caixa = Teller(catalogo)
 
@@ -113,8 +102,6 @@ def test_cadastro_de_combo_recusa_menos_de_dois_produtos_diferentes(catalogo, pr
 
     assert caixa.bundles == []
 
-
-# Produto vendido por peso (RF15)
 
 def test_produto_por_peso_entra_no_combo_so_com_quilos_inteiros(catalogo):
     caixa = Teller(catalogo)
@@ -139,8 +126,6 @@ def test_produto_por_peso_sem_quilo_inteiro_nao_forma_combo(catalogo):
     assert recibo.total_price() == pytest.approx(11.00)
 
 
-# Convivência com as ofertas existentes (RF16): regressão das ofertas anteriores
-
 def test_produto_com_oferta_propria_fica_fora_do_combo(caixa_com_combo):
     caixa_com_combo.add_special_offer(SpecialOfferType.THREE_FOR_TWO, ESCOVA, 0.0)
 
@@ -159,11 +144,8 @@ def test_produto_com_oferta_propria_fica_fora_mesmo_sem_desconto_da_oferta(caixa
     assert recibo.total_price() == pytest.approx(25.00)
 
 
-# Combos com produto em comum (RF17)
-
 @pytest.fixture
 def caixa_com_dois_combos(catalogo):
-    """Combo A [escova, creme dental] cadastrado antes do combo B [escova, fio dental]."""
     caixa = Teller(catalogo)
     caixa.add_bundle_offer([ESCOVA, CREME_DENTAL])
     caixa.add_bundle_offer([ESCOVA, FIO_DENTAL])
@@ -191,8 +173,6 @@ def test_multiplos_combos_com_produto_em_comum(caixa_com_dois_combos):
     ]
     assert recibo.total_price() == pytest.approx(36.00)
 
-
-# Ordem dos descontos (RF11) e recibo sem combo (RNF02)
 
 def test_descontos_de_combo_vem_depois_dos_descontos_das_ofertas(caixa_com_combo):
     caixa_com_combo.add_special_offer(SpecialOfferType.TEN_PERCENT_DISCOUNT, FIO_DENTAL, 10.0)
@@ -228,8 +208,6 @@ def test_recibo_impresso_com_combo(caixa_com_combo):
         "Total:                             22.50\n"
     )
 
-
-# Regra do combo testada direto, sem caixa, carrinho nem recibo (RNF05)
 
 def test_calculadora_de_combos_isolada(catalogo):
     calculadora = BundleCalculator(catalogo)

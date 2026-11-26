@@ -1,4 +1,3 @@
-"""Testes da fábrica que escolhe a estratégia de cada oferta."""
 import pytest
 
 from model_objects import Offer, Product, ProductUnit, SpecialOfferType

@@ -1,4 +1,3 @@
-"""Testes da calculadora de descontos, sem criar Teller, ShoppingCart nem Receipt."""
 import pytest
 
 from discount_calculator import DiscountCalculator

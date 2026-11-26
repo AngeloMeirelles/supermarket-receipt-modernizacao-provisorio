@@ -4,13 +4,10 @@ from offer_strategy_factory import OfferStrategyFactory
 
 
 class DiscountCalculator:
-    """Calcula os descontos das ofertas de uma compra."""
-
     def __init__(self, catalog: SupermarketCatalog) -> None:
         self._catalog = catalog
 
     def offer_discounts(self, product_quantities: dict[Product, float], offers: dict[Product, Offer]) -> list[Discount]:
-        """Devolve os descontos das ofertas, na ordem em que os produtos entraram no carrinho."""
         discounts: list[Discount] = []
         for product, quantity in product_quantities.items():
             if product in offers:
