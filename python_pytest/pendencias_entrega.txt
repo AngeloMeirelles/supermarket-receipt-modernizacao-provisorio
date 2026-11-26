@@ -1,7 +1,7 @@
 PENDÊNCIAS PARA A ENTREGA DO TRABALHO AV3
 Projeto: Supermarket Receipt, versão python_pytest
 Branch de trabalho: modernizacao
-Atualizado em 25/11/2026, depois do commit e844e13
+Atualizado em 25/11/2026, depois do documento de padrões de projeto
 
 Este arquivo lista o que ainda falta para a entrega, conferido item por item contra o
 enunciado (Trabalho_Modernizacao_Sistema_Legado_Supermarket_Receipt.pdf). Ele é uma lista de
@@ -22,52 +22,23 @@ trabalho da equipe e deve ser apagado antes da entrega final.
 - Passo 11: segurança depois (docs/evidencias/depois/05 a 07) e relatório
   (docs/seguranca_antes_depois.md).
 - Registro de cada etapa de código: docs/registro_refatoracao.md.
+- Padrões de projeto com diagramas de antes e depois: docs/padroes_projeto.md.
 
 
 2. O QUE FALTA (EXIGIDO NO ENUNCIADO)
 
-2.1 Documento de padrões de projeto, com diagramas
+2.1 Documento de padrões de projeto, com diagramas: FEITO
 
-Arquivo: docs/padroes_projeto.md, e depois a versão em PDF.
+Arquivo: docs/padroes_projeto.md (feito em 25/11/2026).
 
-Onde o enunciado pede:
-- Passo 8: "Apresentem desenho antes/depois".
-- Item 5.5: "Implementar pelo menos dois padrões de projeto, indicá-los nominalmente e
-  justificar o problema resolvido por cada um. Apresentar diagrama de classes simplificado,
-  trechos antes/depois e testes relacionados."
-- Seção 6 (MPS.BR), linha "Padrões e arquitetura": "Padrões aplicados, motivos e diagramas
-  simplificados".
-- Barema: critério "Padrões de projeto, SOLID, Clean Code", 2,0 pontos, observação "Diagrama e
-  evidências". Sem os dois padrões, a nota desse critério é zero.
+O documento atende o Passo 8, o item 5.5, a seção 6 e o barema: nomes dos padrões (Strategy e
+Template Method, com a fábrica simples como apoio), o problema que cada um resolve (D1, D2, D3 e
+D6), diagrama de classes de antes e de depois, trechos de código de antes (commit c72d68a) e de
+depois, os defeitos mantidos D12 e D13, os princípios SOLID e os testes relacionados.
 
-O que o documento precisa ter:
-a) Os nomes dos padrões: Strategy e Template Method. Citar também a fábrica simples como apoio
-   ao Strategy, explicando que não é o Factory Method do catálogo de padrões (no Factory Method,
-   uma classe base declara o método de criação e as subclasses decidem o que criar; a nossa é
-   uma tabela que escolhe a classe pelo tipo da oferta).
-b) O problema que cada padrão resolve, ligado ao diagnóstico:
-   - Strategy: D1 (um método decide todas as ofertas com if/elif), D2 (a mesma oferta
-     espalhada no método) e D6 (argument com vários significados);
-   - Template Method: D3 (a mesma conta copiada nas três ofertas por quantidade);
-   - fábrica simples: o resto do D1 (a escolha da classe da oferta saiu do carrinho).
-c) Diagrama de classes simplificado do código ANTES, com: ShoppingCart (guarda itens e calcula
-   todas as ofertas no handle_offers), Teller, Receipt, ReceiptItem, Offer, SpecialOfferType,
-   Discount, Product e SupermarketCatalog.
-d) Diagrama de classes simplificado do código DEPOIS, com: a interface IOfferStrategy;
-   PercentDiscountStrategy; a classe base abstrata QuantityOfferStrategy e as três filhas
-   ThreeForTwoStrategy, TwoForAmountStrategy e FiveForAmountStrategy; OfferStrategyFactory;
-   DiscountCalculator; BundleCalculator e Bundle; ShoppingCart (só guarda itens e repassa);
-   Teller (cadastra ofertas e combos e fecha a compra).
-e) Trechos de código antes e depois. Já estão prontos em docs/registro_refatoracao.md, seções
-   6.3 (Strategy), 7.3 (Template Method) e 8.3 (fábrica).
-f) Testes relacionados: tests/test_estrategias_oferta.py (ofertas isoladas, classe base e a
-   oferta inventada "4 por 6,00", QuatroPorSeis, que mostra o benefício do Template Method),
-   tests/test_fabrica_ofertas.py e tests/test_calculadora_descontos.py.
-g) Os princípios SOLID aplicados. A tabela já está em docs/registro_refatoracao.md, seção 10.3.
-
-A decidir: o formato do diagrama. Opções: diagrama em Mermaid dentro do Markdown, que o GitHub
-desenha sozinho, ou imagem (PNG ou SVG) gerada à parte. O formato escolhido precisa sair também
-no PDF.
+Os diagramas estão em Mermaid, um texto dentro do Markdown que o GitHub desenha sozinho. Falta só
+a versão em PDF (item 2.5). Ao gerar o PDF, conferir se os diagramas saem desenhados, e não como
+texto.
 
 
 2.2 Documento de evidências de testes
@@ -220,7 +191,7 @@ mantidos), registro da refatoração (seções 10 e 11), relatório de seguranç
   manter só a evidência da tentativa, que o enunciado aceita (item 5.8). Se a conta for criada,
   rodar o scan nas duas situações e atualizar as evidências 07 e o relatório de segurança.
 - Documento de evidências de testes: documento próprio ou seção no README (item 2.2).
-- Formato dos diagramas (item 2.1) e forma de gerar os PDFs (item 2.5).
+- Forma de gerar os PDFs (item 2.5), de um jeito que desenhe os diagramas Mermaid.
 - Opcional: acrescentar o arquivo .coverage ao .gitignore, num commit "chore:". Não é exigido,
   mas evita que alguém envie esse arquivo por engano.
 

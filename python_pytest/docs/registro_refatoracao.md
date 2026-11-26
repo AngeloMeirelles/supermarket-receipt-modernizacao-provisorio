@@ -444,7 +444,7 @@ A escolha passou para a classe `OfferStrategyFactory`, no arquivo novo
 que diz, para cada tipo de oferta, como criar a estratégia a partir do valor cadastrado:
 
 ```python
-_STRATEGY_BUILDERS = {
+_STRATEGY_BUILDERS: dict[SpecialOfferType, Callable[[float], IOfferStrategy]] = {
     SpecialOfferType.THREE_FOR_TWO: lambda argument: ThreeForTwoStrategy(),
     SpecialOfferType.TEN_PERCENT_DISCOUNT: lambda argument: PercentDiscountStrategy(argument),
     SpecialOfferType.TWO_FOR_AMOUNT: lambda argument: TwoForAmountStrategy(argument),
