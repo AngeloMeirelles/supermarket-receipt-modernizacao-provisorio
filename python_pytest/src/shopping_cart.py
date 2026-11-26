@@ -1,12 +1,6 @@
 from catalog import SupermarketCatalog
-from model_objects import ProductQuantity, SpecialOfferType, Offer, Product
-from offer_strategies import (
-    FiveForAmountStrategy,
-    IOfferStrategy,
-    PercentDiscountStrategy,
-    ThreeForTwoStrategy,
-    TwoForAmountStrategy,
-)
+from model_objects import ProductQuantity, Offer, Product
+from offer_strategy_factory import OfferStrategyFactory
 from receipt import Receipt
 
 
@@ -40,16 +34,7 @@ class ShoppingCart:
             if product in offers.keys():
                 offer = offers[product]
                 unit_price = catalog.unit_price(product)
-                strategy: IOfferStrategy | None = None
-                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
-                    strategy = ThreeForTwoStrategy()
-                elif offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                    strategy = PercentDiscountStrategy(offer.argument)
-                elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
-                    strategy = TwoForAmountStrategy(offer.argument)
-                elif offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
-                    strategy = FiveForAmountStrategy(offer.argument)
-
+                strategy = OfferStrategyFactory.create(offer)
                 if strategy:
                     discount = strategy.calculate_discount(product, quantity, unit_price)
                     if discount:
