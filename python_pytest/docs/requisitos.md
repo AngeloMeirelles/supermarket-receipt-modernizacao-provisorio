@@ -216,7 +216,7 @@ Requisitos não funcionais:
 | RNF03 | testes automatizados com pytest | os 100 testes; esta tabela mostra pelo menos um teste para cada RF | depois/01 (100 testes) e depois/02 (cobertura de 100%, meta acima de 90%) |
 | RNF04 | Strategy, Template Method e fábrica simples; combos em classe própria | estratégias: `test_nova_oferta_por_quantidade_so_preenche_as_lacunas`, `test_nova_oferta_por_quantidade_abaixo_do_minimo_nao_da_desconto` | o commit `89f6a53` dos combos não altera os arquivos das ofertas (`docs/registro_refatoracao.md`, seção 11.3) |
 | RNF05 | cada regra de desconto numa classe própria | estratégias (as quatro ofertas); calculadora; combos: `test_calculadora_de_combos_isolada` | depois/01 |
-| RNF06 | Bandit, pip-audit e Safety antes e depois | não se aplica | antes/05, antes/06 e antes/07; depois: etapa E11 |
+| RNF06 | Bandit, pip-audit e Safety antes e depois, com as mesmas versões e o mesmo ambiente separado | não se aplica | antes/05, antes/06 e antes/07 (linha de base) e depois/05, depois/06 e depois/07: nenhum alerta do Bandit e nenhuma vulnerabilidade nas dependências, antes e depois |
 | RNF07 | nenhuma biblioteca foi acrescentada | não se aplica | depois/00: as mesmas 24 bibliotecas de antes; `requirements.txt` igual ao original |
 
 ## 8. Pontos decididos na revisão
