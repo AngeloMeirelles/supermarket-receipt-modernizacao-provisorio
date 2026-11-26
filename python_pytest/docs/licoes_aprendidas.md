@@ -1,8 +1,6 @@
 # Lições aprendidas
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: todos os documentos de `docs/` e o histórico de commits da branch `modernizacao`.
-Data: 25/11/2026.
 
 ## 1. Objetivo
 

@@ -1,8 +1,6 @@
 # Evidências de testes
 
 Projeto: Supermarket Receipt, versão python_pytest.
-Base: arquivos de `docs/evidencias/antes/` e `docs/evidencias/depois/`.
-Data: 25/11/2026.
 
 ## 1. Objetivo
 
