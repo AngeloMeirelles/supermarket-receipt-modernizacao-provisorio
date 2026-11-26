@@ -16,7 +16,8 @@ Antes de cada commit:
 
 - `pytest`: todos os testes precisam passar, sem nenhuma alteração nos testes que já existiam.
   Eram 41 até a E4 (40 de caracterização e o teste original), passaram a 60 com os testes das
-  ofertas isoladas da E5 e a 68 com os testes da classe base da E6;
+  ofertas isoladas da E5, a 68 com os testes da classe base da E6 e a 76 com os testes da
+  fábrica da E7;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode
   cair.
 
@@ -36,6 +37,7 @@ D12 e D13). Se um deles falhar, a etapa mudou um comportamento.
 | E5 | `e5c23a6` | Testes de cada oferta isolada | RNF05 e D11 | 60 passaram | 100% (212 linhas) |
 | E6 | `9f0255c` | Conta comum das ofertas por quantidade numa classe base (Template Method) | D3 | 60 passaram | 100% (227 linhas) |
 | E6 | `60fb453` | Testes da classe base | RNF04 | 68 passaram | 100% (227 linhas) |
+| E7 | `0b1c7aa` | Fábrica simples escolhe a estratégia pelo tipo da oferta, com os testes da fábrica | D1 | 76 passaram | 100% (230 linhas) |
 
 O número de linhas muda porque o ReceiptPrinter entrou na conta na E3, uma variável foi
 retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também contam e a
@@ -422,3 +424,79 @@ padrão:
   nenhuma diferença. Essa comparação foi feita com um script à parte, fora do repositório, como
   cuidado extra com o arredondamento (risco R2 do plano).
 - A cobertura de `src/` ficou em 100%, com 227 linhas.
+
+## 8. E7: fábrica simples para escolher a oferta
+
+### 8.1 Problema
+
+Depois da E5, as contas tinham saído do carrinho, mas a escolha da classe de cada oferta ainda
+era uma sequência de `if` e `elif` dentro do `handle_offers`. Era o que restava do D1: para
+criar uma oferta nova, ainda seria preciso mexer no carrinho.
+
+### 8.2 Solução
+
+A escolha passou para a classe `OfferStrategyFactory`, no arquivo novo
+`src/offer_strategy_factory.py`. No lugar do `if` e `elif`, ela tem uma tabela, um dicionário
+que diz, para cada tipo de oferta, como criar a estratégia a partir do valor cadastrado:
+
+```python
+_STRATEGY_BUILDERS = {
+    SpecialOfferType.THREE_FOR_TWO: lambda argument: ThreeForTwoStrategy(),
+    SpecialOfferType.TEN_PERCENT_DISCOUNT: lambda argument: PercentDiscountStrategy(argument),
+    SpecialOfferType.TWO_FOR_AMOUNT: lambda argument: TwoForAmountStrategy(argument),
+    SpecialOfferType.FIVE_FOR_AMOUNT: lambda argument: FiveForAmountStrategy(argument),
+}
+```
+
+Cada `lambda argument: ...` é uma função curta que recebe o valor da oferta e cria a estratégia.
+No "leve 3, pague 2", ela ignora o valor, porque essa oferta não usa nenhum. O método
+`create(offer)` procura o tipo da oferta na tabela e cria a estratégia. Se o tipo não estiver na
+tabela, devolve `None`, e a oferta não dá desconto, como no código original.
+
+Uma oferta nova passa a ser uma linha nova na tabela, sem mexer no carrinho (RNF04).
+
+Esta classe é uma fábrica simples, e é documentada com esse nome. O Factory Method do catálogo
+de padrões é outra coisa: uma classe base declara o método de criação e as subclasses decidem
+qual objeto criar. Os dois padrões de projeto do trabalho são o Strategy (E5) e o Template
+Method (E6). A fábrica completa o Strategy, tirando do carrinho a escolha da estratégia (risco
+R11 do plano).
+
+### 8.3 Antes e depois
+
+`handle_offers`, antes:
+
+```python
+strategy: IOfferStrategy | None = None
+if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
+    strategy = ThreeForTwoStrategy()
+elif offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+    strategy = PercentDiscountStrategy(offer.argument)
+elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+    strategy = TwoForAmountStrategy(offer.argument)
+elif offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
+    strategy = FiveForAmountStrategy(offer.argument)
+```
+
+Depois:
+
+```python
+strategy = OfferStrategyFactory.create(offer)
+```
+
+Com isso, o D1 está resolvido: o `handle_offers` não tem mais nenhuma decisão por tipo de oferta.
+
+### 8.4 Testes da fábrica
+
+O arquivo `tests/test_fabrica_ofertas.py` tem 8 testes:
+
+- cada tipo de oferta gera a classe certa;
+- o valor cadastrado chega à estratégia: uma oferta de 15% gera o texto `15.0% off`, e as de
+  "2 por valor" e "5 por valor" geram os textos com o valor cadastrado;
+- um tipo de oferta desconhecido devolve `None`.
+
+### 8.5 Conferência
+
+Código e testes foram no mesmo commit (`0b1c7aa`). Sem os testes da fábrica, a linha que
+devolve `None` para tipo desconhecido ficaria sem teste, e a cobertura cairia para 99%, o que o
+critério das etapas de refatoração não permite. Os 68 testes que já existiam passaram sem
+alteração, os 76 passaram no total, e a cobertura de `src/` ficou em 100%, com 230 linhas.
