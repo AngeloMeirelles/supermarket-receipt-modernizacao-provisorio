@@ -1,0 +1,23 @@
+Cobertura de testes - código modernizado
+Pasta: python_pytest (código do commit 4bdccf0 da branch modernizacao)
+Comparação: 71% no código original só com o teste original (antes/02_cobertura.txt) e 100% com a caracterização (antes/04_caracterizacao_cobertura.txt). A meta do RNF03 é ficar acima de 90%
+
+Comandos:
+  coverage run --source=src -m pytest
+  coverage report -m
+
+Saída:
+Name                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+src\bundle_calculator.py           20      0   100%
+src\catalog.py                      6      0   100%
+src\discount_calculator.py         17      0   100%
+src\model_objects.py               32      0   100%
+src\offer_strategies.py            59      0   100%
+src\offer_strategy_factory.py      11      0   100%
+src\receipt.py                     28      0   100%
+src\receipt_printer.py             45      0   100%
+src\shopping_cart.py               24      0   100%
+src\teller.py                      29      0   100%
+-------------------------------------------------------------
+TOTAL                             271      0   100%
