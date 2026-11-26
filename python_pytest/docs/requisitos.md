@@ -164,10 +164,60 @@ O tratamento deles fica no plano de contingência e na refatoração.
 ### 7.2 Requisito, implementação e teste
 
 O enunciado pede a rastreabilidade requisito → implementação → caso de teste → evidência.
-Esta tabela é preenchida à medida que a implementação avança. Para cada requisito, ela informa
-a classe ou o método que o implementa, o arquivo e o nome do teste que o verifica, e a
-evidência da execução. É por ela que se confere o RNF03 (cada RF tem teste) e o RNF05 (cada
-regra tem teste isolado).
+Para cada requisito, as tabelas abaixo informam onde ele está implementado, os testes que o
+verificam e a evidência da execução. É por elas que se confere o RNF03 (cada RF tem teste) e o
+RNF05 (cada regra tem teste isolado). Foram preenchidas na etapa E10 do plano de contingência,
+depois da implementação dos combos.
+
+Arquivos de teste, todos na pasta `tests/`, e o nome curto usado nas tabelas:
+
+| Nome curto | Arquivo | O que testa |
+|---|---|---|
+| original | `test_supermarket.py` | teste original do kata, sem nenhuma alteração |
+| legado | `test_comportamento_legado.py` | caracterização: o comportamento do código original, sem alteração desde que foi escrito |
+| estratégias | `test_estrategias_oferta.py` | cada oferta isolada e a classe base das ofertas por quantidade |
+| fábrica | `test_fabrica_ofertas.py` | a fábrica que escolhe a regra de cada oferta |
+| calculadora | `test_calculadora_descontos.py` | a calculadora dos descontos das ofertas |
+| combos | `test_combos.py` | os combos |
+
+As evidências ficam em `docs/evidencias/`. Nas tabelas, `antes/03` é
+`docs/evidencias/antes/03_caracterizacao_pytest.txt`, a execução da caracterização no código
+original, e `depois/01` é `docs/evidencias/depois/01_pytest.txt`, a execução de todos os testes
+no código final. Os demais seguem o mesmo padrão.
+
+Requisitos funcionais:
+
+| Requisito | Implementação (`src/`) | Testes | Evidência |
+|---|---|---|---|
+| RF01 | `ShoppingCart.add_item_quantity`, `add_item` e `product_quantities` (`shopping_cart.py`); `Teller.checks_out_articles_from` (`teller.py`) | legado: `test_mesmo_produto_adicionado_duas_vezes_gera_duas_linhas`, `test_oferta_considera_a_soma_das_linhas_do_mesmo_produto`, `test_add_item_adiciona_uma_unidade`, `test_product_quantities_soma_as_quantidades_do_mesmo_produto` | antes/03 e depois/01 |
+| RF02 | `Teller.checks_out_articles_from` (`teller.py`); `Receipt.add_product` e `ReceiptItem` (`receipt.py`) | legado: `test_recibo_tem_uma_linha_por_item_na_ordem_do_carrinho`, `test_recibo_montado_diretamente` | antes/03 e depois/01 |
+| RF03 | `Receipt.total_price` (`receipt.py`) | legado: `test_carrinho_vazio_gera_recibo_vazio`, `test_total_sem_oferta_e_a_soma_dos_itens`; original: `test_ten_percent_discount` | antes/03 e depois/01 |
+| RF04 | `DiscountCalculator.offer_discounts` (`discount_calculator.py`) | legado: `test_oferta_de_produto_fora_do_carrinho_nao_gera_desconto`; calculadora: `test_oferta_de_produto_fora_da_compra_nao_gera_desconto` | antes/03 e depois/01 |
+| RF05 | `Teller.add_special_offer` (`teller.py`) | legado: `test_nova_oferta_substitui_a_anterior_do_mesmo_produto` | antes/03 e depois/01 |
+| RF06 | `ThreeForTwoStrategy` e `QuantityOfferStrategy` (`offer_strategies.py`) | legado: `test_leve_3_pague_2_abaixo_do_minimo_nao_gera_desconto`, `test_leve_3_pague_2`; estratégias: `test_leve_3_pague_2_abaixo_do_minimo_nao_da_desconto`, `test_leve_3_pague_2` | antes/03 e depois/01 |
+| RF07 | `PercentDiscountStrategy` (`offer_strategies.py`) | legado: `test_desconto_percentual`, `test_desconto_percentual_vale_sobre_fracao_de_peso`, `test_ten_percent_discount_aplica_o_percentual_cadastrado_item_mantido_d8`; estratégias: `test_desconto_percentual`, `test_desconto_percentual_aplica_o_percentual_cadastrado_item_mantido_d8` | antes/03 e depois/01 |
+| RF08 | `TwoForAmountStrategy` (`offer_strategies.py`), com o D12 mantido no método `_number_of_groups` | legado: `test_dois_por_valor_com_1_unidade_nao_gera_desconto`, `test_dois_por_valor_com_quantidade_par`, `test_dois_por_valor_com_3_unidades_cobra_a_mais_item_mantido_d12`, `test_dois_por_valor_com_5_unidades_cobra_a_mais_item_mantido_d12`; estratégias: `test_dois_por_valor_com_1_unidade_nao_da_desconto`, `test_dois_por_valor_com_quantidade_par`, `test_dois_por_valor_com_quantidade_impar_cobra_a_mais_item_mantido_d12` | antes/03 e depois/01 |
+| RF09 | `FiveForAmountStrategy` (`offer_strategies.py`) | legado: `test_cinco_por_valor_abaixo_do_minimo_nao_gera_desconto`, `test_cinco_por_valor`; estratégias: `test_cinco_por_valor_abaixo_do_minimo_nao_da_desconto`, `test_cinco_por_valor` | antes/03 e depois/01 |
+| RF10 | `QuantityOfferStrategy.calculate_discount` (`offer_strategies.py`), com o D13 mantido | legado: `test_fracao_de_peso_nao_completa_grupo_da_oferta`, `test_fracao_de_peso_sai_de_graca_item_mantido_d13`; estratégias: `test_leve_3_pague_2_nao_cobra_fracao_de_peso_item_mantido_d13` | antes/03 e depois/01 |
+| RF11 | `DiscountCalculator.offer_discounts` (ordem do carrinho) e `Teller.checks_out_articles_from` (combos depois das ofertas) | legado: `test_descontos_seguem_a_ordem_do_carrinho`, `test_todas_as_ofertas_no_mesmo_carrinho`; calculadora: `test_descontos_seguem_a_ordem_dos_produtos`; combos: `test_descontos_de_combo_vem_depois_dos_descontos_das_ofertas` | antes/03 e depois/01 |
+| RF12 | `Teller.add_bundle_offer` (`teller.py`) e `Bundle` (`model_objects.py`) | combos: `test_cadastro_de_combo_com_produtos_diferentes`, `test_cadastro_de_combo_recusa_menos_de_dois_produtos_diferentes` | depois/01 |
+| RF13 | `BundleCalculator.bundle_discounts` (`bundle_calculator.py`) | combos: `test_combo_completo`, `test_recibo_impresso_com_combo`, `test_calculadora_de_combos_isolada` | depois/01 |
+| RF14 | `BundleCalculator.bundle_discounts` (`bundle_calculator.py`) | combos: `test_combo_incompleto_nao_da_desconto`, `test_combo_repetido`, `test_produto_excedente_paga_preco_normal` | depois/01 |
+| RF15 | `BundleCalculator.bundle_discounts` (`bundle_calculator.py`) | combos: `test_produto_por_peso_entra_no_combo_so_com_quilos_inteiros`, `test_produto_por_peso_sem_quilo_inteiro_nao_forma_combo` | depois/01 |
+| RF16 | `BundleCalculator.bundle_discounts` (`bundle_calculator.py`) | combos: `test_produto_com_oferta_propria_fica_fora_do_combo`, `test_produto_com_oferta_propria_fica_fora_mesmo_sem_desconto_da_oferta` | depois/01 |
+| RF17 | `BundleCalculator.bundle_discounts` (`bundle_calculator.py`) | combos: `test_combo_cadastrado_primeiro_fica_com_a_unidade_em_comum`, `test_multiplos_combos_com_produto_em_comum` | depois/01 |
+
+Requisitos não funcionais:
+
+| Requisito | Como é atendido | Testes | Evidência |
+|---|---|---|---|
+| RNF01 | as interfaces da seção 5.1 foram mantidas; `handle_offers` continua existindo e repassa o cálculo; o ReceiptPrinter é importado do mesmo jeito | original, sem nenhuma alteração; legado, grupo das interfaces: `test_add_item_adiciona_uma_unidade`, `test_handle_offers_chamado_diretamente_adiciona_so_os_descontos`, `test_recibo_montado_diretamente`, `test_items_e_discounts_do_recibo_devolvem_copias`, `test_caixa_guarda_o_catalogo_e_comeca_sem_ofertas` | depois/01 |
+| RNF02 | nenhuma etapa mudou um valor ou um texto do recibo, inclusive nos defeitos mantidos | todo o legado, sem alteração desde o commit `60f645f`, incluindo os testes do recibo impresso; combos: `test_recibo_sem_combo_cadastrado_nao_tem_desconto_de_combo` | antes/03 e depois/01 |
+| RNF03 | testes automatizados com pytest | os 100 testes; esta tabela mostra pelo menos um teste para cada RF | depois/01 (100 testes) e depois/02 (cobertura de 100%, meta acima de 90%) |
+| RNF04 | Strategy, Template Method e fábrica simples; combos em classe própria | estratégias: `test_nova_oferta_por_quantidade_so_preenche_as_lacunas`, `test_nova_oferta_por_quantidade_abaixo_do_minimo_nao_da_desconto` | o commit `89f6a53` dos combos não altera os arquivos das ofertas (`docs/registro_refatoracao.md`, seção 11.3) |
+| RNF05 | cada regra de desconto numa classe própria | estratégias (as quatro ofertas); calculadora; combos: `test_calculadora_de_combos_isolada` | depois/01 |
+| RNF06 | Bandit, pip-audit e Safety antes e depois | não se aplica | antes/05, antes/06 e antes/07; depois: etapa E11 |
+| RNF07 | nenhuma biblioteca foi acrescentada | não se aplica | depois/00: as mesmas 24 bibliotecas de antes; `requirements.txt` igual ao original |
 
 ## 8. Pontos decididos na revisão
 
