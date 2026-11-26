@@ -14,8 +14,9 @@ comportamento não mudou. As próximas etapas são acrescentadas aqui à medida 
 
 Antes de cada commit:
 
-- `pytest`: os 41 testes (40 de caracterização e o teste original) precisam passar, sem
-  nenhuma alteração nos testes;
+- `pytest`: todos os testes precisam passar, sem nenhuma alteração nos testes que já existiam.
+  Eram 41 até a E4 (40 de caracterização e o teste original) e passaram a 60 com os testes das
+  ofertas isoladas da E5;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode
   cair.
 
@@ -31,10 +32,12 @@ D12 e D13). Se um deles falhar, a etapa mudou um comportamento.
 | E4 | `014fc79` | Nomes das variáveis internas | D7 | 41 passaram | 100% (172 linhas) |
 | E4 | `b0ea27c` | Constantes no lugar dos números soltos | D8 | 41 passaram | 100% (177 linhas) |
 | E4 | `9ae05b4` | Anotações de tipo | D9 | 41 passaram | 100% (184 linhas) |
+| E5 | `09b4a70` | Uma classe para cada oferta (Strategy) | D1 (em parte), D2 e D6 | 41 passaram | 100% (212 linhas) |
+| E5 | `e5c23a6` | Testes de cada oferta isolada | RNF05 e D11 | 60 passaram | 100% (212 linhas) |
 
 O número de linhas muda porque o ReceiptPrinter entrou na conta na E3, uma variável foi
-retirada do caixa, as constantes foram acrescentadas e os `import` dos tipos também contam. A
-cobertura ficou em 100% em todas as etapas.
+retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também contam e a
+E5 criou o arquivo das ofertas. A cobertura ficou em 100% em todas as etapas.
 
 ## 4. E3: impressão do recibo na pasta `src` (D14)
 
@@ -176,3 +179,129 @@ estava.
 Nenhuma etapa alterou os itens mantidos (plano, seção 3.1). O `catalog.py` recebeu apenas
 anotações de tipo: a exceção genérica e a mensagem do D10 continuam iguais. Os resultados do
 D5, do D12 e do D13 continuam os mesmos, conferidos pelos testes de caracterização.
+
+## 6. E5: uma classe para cada oferta (Strategy)
+
+### 6.1 Problema
+
+O método `handle_offers` do carrinho decidia o cálculo de todas as ofertas com uma sequência de
+`if` e `elif` (D1). Uma mesma oferta aparecia em pedaços separados do método (D2), e o valor
+`argument` da oferta mudava de sentido conforme o tipo: percentual, preço do par ou preço do
+grupo de cinco (D6). Também não dava para testar uma oferta sozinha.
+
+### 6.2 Padrão aplicado
+
+Strategy: cada forma de calcular o desconto fica numa classe própria, e todas seguem o mesmo
+contrato, a interface `IOfferStrategy`. Quem usa as ofertas não precisa saber como cada uma
+calcula; só chama o método do contrato. É a mesma ideia do exemplo das aulas com a interface
+`IDesconto`.
+
+O arquivo novo `src/offer_strategies.py` tem a interface e uma classe para cada oferta:
+
+| Classe | Oferta | Valor que recebe |
+|---|---|---|
+| `IOfferStrategy` | interface com o método `calculate_discount(product, quantity, unit_price)`, que devolve o desconto ou `None` quando a oferta não dá desconto | não se aplica |
+| `ThreeForTwoStrategy` | leve 3, pague 2 (RF06) | nenhum |
+| `PercentDiscountStrategy` | desconto percentual (RF07) | `percent` |
+| `TwoForAmountStrategy` | 2 por um valor (RF08) | `pair_price`, o preço do par |
+| `FiveForAmountStrategy` | 5 por um valor (RF09) | `group_price`, o preço do grupo de cinco |
+
+A interface segue o estilo das aulas: `class IOfferStrategy(abc.ABC)` com o método marcado com
+`@abc.abstractmethod`. As constantes criadas na E4 passaram para esse arquivo, porque pertencem
+às ofertas. Cada classe recebeu a conta da sua oferta exatamente como estava, na mesma ordem
+das operações.
+
+### 6.3 Antes e depois
+
+`handle_offers`, antes (trecho):
+
+```python
+if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
+    group_size = THREE_FOR_TWO_GROUP_SIZE
+
+elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+    group_size = TWO_FOR_AMOUNT_GROUP_SIZE
+    if quantity_as_int >= TWO_FOR_AMOUNT_GROUP_SIZE:
+        total_with_offer = offer.argument * (quantity_as_int / group_size) + ...
+        ...
+
+if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
+    group_size = FIVE_FOR_AMOUNT_GROUP_SIZE
+
+number_of_groups = math.floor(quantity_as_int / group_size)
+if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and quantity_as_int >= THREE_FOR_TWO_GROUP_SIZE:
+    ...
+if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+    ...
+if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and quantity_as_int >= FIVE_FOR_AMOUNT_GROUP_SIZE:
+    ...
+```
+
+Depois:
+
+```python
+strategy: IOfferStrategy | None = None
+if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
+    strategy = ThreeForTwoStrategy()
+elif offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+    strategy = PercentDiscountStrategy(offer.argument)
+elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+    strategy = TwoForAmountStrategy(offer.argument)
+elif offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
+    strategy = FiveForAmountStrategy(offer.argument)
+
+if strategy:
+    discount = strategy.calculate_discount(product, quantity, unit_price)
+    if discount:
+        receipt.add_discount(discount)
+```
+
+O carrinho agora só escolhe a classe da oferta e pede o desconto a ela. Uma oferta de tipo
+desconhecido continua sem desconto, como no código original.
+
+### 6.4 O que foi resolvido e o que fica para as próximas etapas
+
+- D2: resolvido. Cada oferta está inteira na sua classe.
+- D6: resolvido. Cada classe dá um nome claro ao valor que recebe, e `Offer.argument`
+  continua igual, porque é interface pública.
+- D1: resolvido em parte. As contas saíram do método, mas a escolha da classe ainda usa `if` e
+  `elif`. Essa escolha passa para uma fábrica na E7.
+- D3: continua. As três ofertas por quantidade ainda repetem a mesma conta, agora em classes
+  separadas. Isso é tratado com o Template Method na E6.
+
+### 6.5 Itens mantidos
+
+As classes guardam o comportamento dos itens mantidos (plano, seção 3.1):
+
+- `TwoForAmountStrategy` conta os pares com divisão comum, como no original. Um comentário na
+  conta explica o D12;
+- as três ofertas por quantidade contam os grupos com a parte inteira da quantidade e calculam
+  o desconto sobre a quantidade completa, então a fração de peso continua sem cobrança (D13). A
+  documentação de cada classe registra isso;
+- `PercentDiscountStrategy` aplica o percentual cadastrado, qualquer que seja, e o tipo continua
+  se chamando `TEN_PERCENT_DISCOUNT` (D8).
+
+### 6.6 Testes de cada oferta isolada
+
+O arquivo `tests/test_estrategias_oferta.py` tem 19 testes que chamam cada classe direto, sem
+criar Teller, ShoppingCart nem Receipt, como pede o RNF05. Exemplo:
+
+```python
+desconto = ThreeForTwoStrategy().calculate_discount(ESCOVA, 3, 0.99)
+```
+
+Eles cobrem:
+
+- a interface: as quatro classes seguem `IOfferStrategy`, e a interface sozinha não pode ser
+  criada;
+- cada oferta abaixo do mínimo, no limite e acima dele;
+- os itens mantidos D8, D12 e D13, com os mesmos valores do código original.
+
+Antes da refatoração, esses testes não eram possíveis, porque as contas estavam presas dentro do
+método do carrinho (D4 e D11).
+
+### 6.7 Conferência
+
+Os 41 testes que já existiam passaram sem nenhuma alteração depois do commit `09b4a70`, e os 60
+passaram depois do commit `e5c23a6`. A cobertura de `src/` ficou em 100%, com 212 linhas, e o
+arquivo novo das ofertas está todo coberto.
