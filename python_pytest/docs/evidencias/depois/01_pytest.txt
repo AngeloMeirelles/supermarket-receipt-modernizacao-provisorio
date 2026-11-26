@@ -1,5 +1,5 @@
 Execução dos testes - código modernizado
-Pasta: python_pytest (código do commit 4bdccf0 da branch modernizacao)
+Pasta: python_pytest (código do commit 0b70856 da branch modernizacao)
 Testes: 100 no total
   tests/test_supermarket.py: 1, o teste original, sem alteração
   tests/test_comportamento_legado.py: 40, de caracterização, sem alteração desde que foram escritos
@@ -8,6 +8,7 @@ Testes: 100 no total
   tests/test_calculadora_descontos.py: 6, da calculadora de descontos
   tests/test_combos.py: 18, dos combos
 Comparação: o código original tinha 1 teste (antes/01_pytest.txt); com a caracterização, 41 (antes/03_caracterizacao_pytest.txt)
+Observação: gerado de novo no commit 0b70856, que só retirou comentários e docstrings do código. A versão anterior desta evidência era do commit 4bdccf0. Os testes e o resultado não mudaram
 
 Comando:
   pytest -v

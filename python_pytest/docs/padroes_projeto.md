@@ -131,11 +131,8 @@ O contrato é a interface `IOfferStrategy`, que utiliza `abc.ABC` e `@abc.abstra
 
 ```python
 class IOfferStrategy(abc.ABC):
-    """Regra de desconto de um tipo de oferta."""
-
     @abc.abstractmethod
-    def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None:
-        """Devolve o desconto do produto, ou None quando a oferta não dá desconto."""
+    def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None: ...
 ```
 
 Cada oferta é representada por uma classe que implementa esse contrato:
@@ -257,8 +254,6 @@ A implementação de "leve 3, pague 2" ficou concentrada nos métodos específic
 
 ```python
 class ThreeForTwoStrategy(QuantityOfferStrategy):
-    """Leve 3, pague 2 (RF06)."""
-
     def _group_size(self) -> int:
         return THREE_FOR_TWO_GROUP_SIZE
 
@@ -288,8 +283,6 @@ O arquivo `tests/test_estrategias_oferta.py` demonstra essa possibilidade com um
 
 ```python
 class QuatroPorSeis(QuantityOfferStrategy):
-    """Oferta inventada só para o teste: 4 unidades por 6,00."""
-
     def _group_size(self):
         return 4
 

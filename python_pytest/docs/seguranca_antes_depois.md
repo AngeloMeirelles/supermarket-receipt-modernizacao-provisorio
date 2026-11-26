@@ -47,12 +47,12 @@ safety scan --target . < NUL
 
 | Ferramenta | Antes | Depois | Evidências |
 |---|---|---|---|
-| Bandit | 133 linhas analisadas, nenhum problema | 319 linhas analisadas, nenhum problema | `antes/05_bandit.txt` e `depois/05_bandit.txt` |
+| Bandit | 133 linhas analisadas, nenhum problema | 292 linhas analisadas, nenhum problema | `antes/05_bandit.txt` e `depois/05_bandit.txt` |
 | pip-audit | 24 bibliotecas, nenhuma vulnerabilidade conhecida, 2 avisos sobre hashes | Igual | `antes/06_pip_audit.txt` e `depois/06_pip_audit.txt` |
 | Safety, comando `check` | 24 bibliotecas, nenhuma vulnerabilidade, aviso de comando descontinuado | Igual | `antes/07_safety.txt` e `depois/07_safety.txt` |
 | Safety, comando `scan` | Não executou a análise: exige conta | Não executou a análise: exige conta | `antes/07_safety.txt` e `depois/07_safety.txt` |
 
-O código de `src/` mais que dobrou com a modernização, passando de 133 para 319 linhas, com a inclusão das ofertas, da fábrica, das calculadoras e dos combos. Mesmo com esse aumento, o Bandit continuou sem apontar alertas. Como as bibliotecas do projeto não mudaram, os resultados do pip-audit e do Safety também permaneceram iguais.
+O código de `src/` mais que dobrou com a modernização, passando de 133 para 292 linhas, com a inclusão das ofertas, da fábrica, das calculadoras e dos combos. Mesmo com esse aumento, o Bandit continuou sem apontar alertas. A análise depois foi refeita no commit `0b70856`, que retirou os comentários e as docstrings do código; antes dessa retirada eram 319 linhas, também sem alertas. Como as bibliotecas do projeto não mudaram, os resultados do pip-audit e do Safety também permaneceram iguais.
 
 ## 5. Triagem das mensagens
 

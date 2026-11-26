@@ -1,8 +1,9 @@
 Análise de segurança do código com Bandit - código modernizado
-Pasta: python_pytest (código do commit de0a124 da branch modernizacao)
+Pasta: python_pytest (código do commit 0b70856 da branch modernizacao)
 Ferramenta: Bandit 1.9.4, a mesma versão e o mesmo ambiente separado da linha de base (D:\faculdade\alta-qualidade-av3\venv-ferramentas), fora do projeto
 Escopo: pasta src, que agora tem 10 arquivos, incluindo o código novo das ofertas, da fábrica, das calculadoras e dos combos. Os testes ficam fora, pelo mesmo motivo da linha de base
-Comparação: na linha de base, 133 linhas analisadas e nenhum problema (antes/05_bandit.txt). Depois da modernização, 319 linhas e nenhum problema
+Comparação: na linha de base, 133 linhas analisadas e nenhum problema (antes/05_bandit.txt). Depois da modernização, 292 linhas e nenhum problema
+Observação: gerado de novo no commit 0b70856, que só retirou comentários e docstrings do código. A versão anterior desta evidência era do commit de0a124. Na versão anterior eram 319 linhas; as docstrings retiradas contavam como linhas de código
 
 Comandos:
   bandit --version
@@ -16,13 +17,13 @@ bandit 1.9.4
 [main]	INFO	cli include tests: None
 [main]	INFO	cli exclude tests: None
 [main]	INFO	running on Python 3.11.5
-Run started:2026-11-26 00:28:49.134144+00:00
+Run started:2026-11-26 04:57:04.850532+00:00
 
 Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 319
+	Total lines of code: 292
 	Total lines skipped (#nosec): 0
 	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
 

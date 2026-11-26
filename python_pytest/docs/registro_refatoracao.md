@@ -33,8 +33,9 @@ Esses critérios correspondem aos critérios de aceitação da seção 6 do plan
 | E8 | `a123262` | Cálculo dos descontos sai do carrinho para uma classe própria | D4 | 76 passaram | 100% (239 linhas) |
 | E8 | `e40c587` | Testes da calculadora de descontos | RNF05 | 82 passaram | 100% (239 linhas) |
 | E9 | `89f6a53` | Combos promocionais, com os testes dos combos | RF11 a RF17 | 100 passaram | 100% (271 linhas) |
+| Ajuste | `0b70856` | Retirada dos comentários e docstrings do código (seção 12) | nenhum | 100 passaram | 100% (263 linhas) |
 
-O número de linhas muda porque o ReceiptPrinter entrou na cobertura de `src/` na E3, uma variável foi retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também passaram a contar e a E5 criou o arquivo das ofertas. A cobertura permaneceu em 100% em todas as etapas.
+O número de linhas muda porque o ReceiptPrinter entrou na cobertura de `src/` na E3, uma variável foi retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também passaram a contar e a E5 criou o arquivo das ofertas. No ajuste final, a ferramenta deixou de contar os métodos abstratos com corpo `...`. A cobertura permaneceu em 100% em todas as etapas.
 
 ## 4. E3: impressão do recibo na pasta `src` (D14)
 
@@ -234,7 +235,7 @@ O carrinho agora só escolhe a classe da oferta e solicita o desconto a ela. Uma
 
 As classes preservam o comportamento dos itens mantidos, conforme definido no plano, seção 3.1:
 
-- `TwoForAmountStrategy` conta os pares com divisão comum, como no original. Um comentário na conta explica o D12;
+- `TwoForAmountStrategy` conta os pares com divisão comum, como no original. Um comentário na conta explicava o D12, retirado depois com os demais comentários (seção 12);
 - as três ofertas por quantidade contam os grupos com a parte inteira da quantidade e calculam o desconto sobre a quantidade completa, então a fração de peso continua sem cobrança (D13). A documentação de cada classe registra esse comportamento;
 - `PercentDiscountStrategy` aplica o percentual cadastrado, qualquer que seja, e o tipo continua se chamando `TEN_PERCENT_DISCOUNT` (D8).
 
@@ -302,7 +303,6 @@ As três primeiras lacunas são obrigatórias (`@abc.abstractmethod`). A quarta 
 
 ```python
 class ThreeForTwoStrategy(IOfferStrategy):
-
     def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None:
         quantity_as_int = int(quantity)
         if quantity_as_int < THREE_FOR_TWO_GROUP_SIZE:
@@ -317,7 +317,6 @@ Depois:
 
 ```python
 class ThreeForTwoStrategy(QuantityOfferStrategy):
-
     def _group_size(self) -> int:
         return THREE_FOR_TWO_GROUP_SIZE
 
@@ -572,3 +571,25 @@ O arquivo `tests/test_combos.py` tem 18 testes. Os preços da escova e do creme 
 ### 11.5 Conferência
 
 Código e testes foram incluídos no mesmo commit (`89f6a53`). Os 82 testes que já existiam passaram sem alteração, os 100 passaram no total, e a cobertura de `src/` ficou em 100%, com 271 linhas.
+
+## 12. Retirada dos comentários e docstrings
+
+Commit: `0b70856`.
+
+Os comentários e as docstrings acrescentados durante a modernização foram retirados do código. O código original não tinha comentários nem docstrings, e os nomes das classes, dos métodos e das constantes indicam o papel de cada parte. As explicações sobre requisitos, defeitos mantidos e padrões continuam nos documentos da pasta `docs/`.
+
+O que mudou:
+
+- em `src/`, as docstrings das classes e dos métodos e os comentários de `bundle_calculator.py` e `offer_strategies.py`;
+- nos testes novos (`test_estrategias_oferta.py`, `test_fabrica_ofertas.py`, `test_calculadora_descontos.py` e `test_combos.py`), as docstrings e os comentários que separavam os grupos de testes;
+- os quatro métodos abstratos, que tinham só a docstring como corpo, passaram a ter `...` na mesma linha da assinatura.
+
+O arquivo `tests/test_comportamento_legado.py` não foi alterado. Ele é o mesmo arquivo que rodou sobre o código original (`docs/evidencias/antes/03_caracterizacao_pytest.txt`), e o RNF02 exige que os testes de caracterização continuem passando sem nenhuma alteração.
+
+Conferência:
+
+- a árvore sintática de cada arquivo, desconsiderando as docstrings e os corpos `...`, ficou idêntica à anterior, o que mostra que nenhuma instrução mudou;
+- os 100 testes passaram e a cobertura de `src/` continuou em 100%;
+- o total de instruções contadas pela cobertura passou de 271 para 263, porque a ferramenta deixa de contar, por padrão, os métodos cujo corpo é só `...` (os 4 métodos abstratos, com o decorador e a assinatura);
+- o Bandit passou a analisar 292 linhas em vez de 319, porque as linhas das docstrings contavam como código, e continuou sem alertas;
+- as evidências `depois/01_pytest.txt`, `depois/02_cobertura.txt` e `depois/05_bandit.txt` foram geradas novamente sobre este commit. O pip-audit e o Safety analisam as bibliotecas, que não mudaram, e por isso as evidências 06 e 07 foram mantidas.
