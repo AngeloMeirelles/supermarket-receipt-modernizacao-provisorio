@@ -241,10 +241,10 @@ As classes preservam o comportamento dos itens mantidos, conforme definido no pl
 
 ### 6.6 Testes de cada oferta isolada
 
-O arquivo `tests/test_estrategias_oferta.py` tem 19 testes que chamam cada classe diretamente, sem criar Teller, ShoppingCart nem Receipt, conforme o RNF05. Exemplo:
+O arquivo `tests/test_offer_strategies.py` (criado como `tests/test_estrategias_oferta.py` e renomeado na seção 13) tem 19 testes que chamam cada classe diretamente, sem criar Teller, ShoppingCart nem Receipt, conforme o RNF05. Exemplo:
 
 ```python
-desconto = ThreeForTwoStrategy().calculate_discount(ESCOVA, 3, 0.99)
+discount = ThreeForTwoStrategy().calculate_discount(TOOTHBRUSH, 3, 0.99)
 ```
 
 Eles cobrem:
@@ -338,10 +338,10 @@ Com a conta centralizada, os comportamentos dos itens mantidos ficaram concentra
 
 ### 7.5 Testes da classe base
 
-Foram acrescentados 8 testes em `tests/test_estrategias_oferta.py`:
+Foram acrescentados 8 testes em `tests/test_offer_strategies.py`:
 
 - as três ofertas por quantidade usam a mesma classe base, e a classe base sozinha não pode ser criada;
-- uma quarta implementação, chamada `QuatroPorSeis`, representa uma oferta de "4 por 6,00". Ela foi criada implementando apenas as três lacunas, sem escrever uma nova conta. Com 4 unidades a 1,79, o desconto é de 1,16; abaixo de 4 unidades, não há desconto. O teste demonstra que uma nova promoção desse tipo pode utilizar o cálculo existente sem alterar as outras ofertas (RNF04).
+- uma quarta implementação, chamada `FourForSixStrategy`, representa uma oferta de "4 por 6,00". Ela foi criada implementando apenas as três lacunas, sem escrever uma nova conta. Com 4 unidades a 1,79, o desconto é de 1,16; abaixo de 4 unidades, não há desconto. O teste demonstra que uma nova promoção desse tipo pode utilizar o cálculo existente sem alterar as outras ofertas (RNF04).
 
 ### 7.6 Conferência
 
@@ -400,7 +400,7 @@ Com isso, o D1 está resolvido: o `handle_offers` não tem mais decisões por ti
 
 ### 8.4 Testes da fábrica
 
-O arquivo `tests/test_fabrica_ofertas.py` tem 8 testes:
+O arquivo `tests/test_offer_strategy_factory.py` (criado como `tests/test_fabrica_ofertas.py`) tem 8 testes:
 
 - cada tipo de oferta gera a classe correta;
 - o valor cadastrado chega à estratégia: uma oferta de 15% gera o texto `15.0% off`, e as de "2 por valor" e "5 por valor" geram os textos com o valor cadastrado;
@@ -455,7 +455,7 @@ O carrinho agora fica responsável por guardar os itens, enquanto a calculadora 
 
 ### 9.4 Testes da calculadora
 
-O arquivo `tests/test_calculadora_descontos.py` tem 6 testes, que usam apenas o catálogo de teste e dicionários, sem criar Teller, ShoppingCart nem Receipt:
+O arquivo `tests/test_discount_calculator.py` (criado como `tests/test_calculadora_descontos.py`) tem 6 testes, que usam apenas o catálogo de teste e dicionários, sem criar Teller, ShoppingCart nem Receipt:
 
 - os descontos saem na ordem dos produtos;
 - não geram desconto: compra sem ofertas, oferta que não atinge o mínimo, oferta de produto que não está na compra e oferta de tipo desconhecido;
@@ -505,7 +505,7 @@ Os 76 testes que já existiam passaram sem nenhuma alteração depois do commit 
 | Princípio | Onde aparece |
 |---|---|
 | Responsabilidade Única | o carrinho só guarda itens, a calculadora calcula, e cada estratégia cuida de uma oferta |
-| Aberto/Fechado | uma oferta nova pode ser implementada sem alterar o carrinho nem as estratégias existentes, exigindo apenas uma nova entrada na tabela da fábrica. Os testes da E6 demonstram a reutilização do cálculo com a implementação `QuatroPorSeis` |
+| Aberto/Fechado | uma oferta nova pode ser implementada sem alterar o carrinho nem as estratégias existentes, exigindo apenas uma nova entrada na tabela da fábrica. Os testes da E6 demonstram a reutilização do cálculo com a implementação `FourForSixStrategy` |
 | Inversão de Dependência | a calculadora recebe o catálogo pelo construtor e depende do contrato `SupermarketCatalog`. Nos testes, recebe o catálogo de teste |
 
 ## 11. E9: combos promocionais
@@ -581,7 +581,7 @@ Os comentários e as docstrings acrescentados durante a modernização foram ret
 O que mudou:
 
 - em `src/`, as docstrings das classes e dos métodos e os comentários de `bundle_calculator.py` e `offer_strategies.py`;
-- nos testes novos (`test_estrategias_oferta.py`, `test_fabrica_ofertas.py`, `test_calculadora_descontos.py` e `test_combos.py`), as docstrings e os comentários que separavam os grupos de testes;
+- nos testes novos (`test_offer_strategies.py`, `test_offer_strategy_factory.py`, `test_discount_calculator.py` e `test_combos.py`), as docstrings e os comentários que separavam os grupos de testes;
 - os quatro métodos abstratos, que tinham só a docstring como corpo, passaram a ter `...` na mesma linha da assinatura.
 
 O arquivo `tests/test_comportamento_legado.py` não foi alterado. Ele é o mesmo arquivo que rodou sobre o código original (`docs/evidencias/antes/03_caracterizacao_pytest.txt`), e o RNF02 exige que os testes de caracterização continuem passando sem nenhuma alteração.
@@ -593,3 +593,32 @@ Conferência:
 - o total de instruções contadas pela cobertura passou de 271 para 263, porque a ferramenta deixa de contar, por padrão, os métodos cujo corpo é só `...` (os 4 métodos abstratos, com o decorador e a assinatura);
 - o Bandit passou a analisar 292 linhas em vez de 319, porque as linhas das docstrings contavam como código, e continuou sem alertas;
 - as evidências `depois/01_pytest.txt`, `depois/02_cobertura.txt` e `depois/05_bandit.txt` foram geradas novamente sobre este commit. O pip-audit e o Safety analisam as bibliotecas, que não mudaram, e por isso as evidências 06 e 07 foram mantidas.
+
+## 13. Tradução dos nomes dos testes
+
+Commit: `b968277`.
+
+Os testes criados na modernização tinham nomes em português, enquanto o código do sistema e o teste original do kata estão em inglês. Para deixar o código uniforme, os identificadores desses testes foram traduzidos para o inglês: funções de teste, fixtures, funções auxiliares, constantes, a classe auxiliar da oferta "4 por 6,00" e as variáveis locais.
+
+| Antes | Depois |
+|---|---|
+| `tests/test_estrategias_oferta.py` | `tests/test_offer_strategies.py` |
+| `tests/test_fabrica_ofertas.py` | `tests/test_offer_strategy_factory.py` |
+| `tests/test_calculadora_descontos.py` | `tests/test_discount_calculator.py` |
+| `tests/test_combos.py` | mesmo nome, com o conteúdo traduzido |
+| `QuatroPorSeis` | `FourForSixStrategy` |
+
+Os testes que registram itens mantidos passaram a usar os sufixos `_kept_item_d8`, `_kept_item_d12` e `_kept_item_d13`, equivalentes ao `item_mantido` dos testes de caracterização. Os nomes de cada teste estão na rastreabilidade (requisitos, seção 7.2). O único texto alterado foi o valor usado como tipo de oferta desconhecido, que passou de "tipo desconhecido" para "unknown offer type", sem efeito no resultado dos testes.
+
+Ficaram como estavam:
+
+- `tests/test_comportamento_legado.py`, que é o mesmo arquivo que rodou sobre o código original (`docs/evidencias/antes/03_caracterizacao_pytest.txt`). O RNF02 exige que os testes de caracterização continuem sem nenhuma alteração, e o nome do arquivo é o da estrutura sugerida no enunciado;
+- o nome de `tests/test_combos.py`, que também é o da estrutura sugerida no enunciado;
+- `tests/test_supermarket.py`, o teste original, e todo o código de `src/`.
+
+Conferência:
+
+- a árvore sintática de cada arquivo traduzido ficou idêntica à da versão anterior com os nomes substituídos, o que mostra que nenhum valor, asserção ou ordem de teste mudou;
+- o pytest coletou os mesmos 100 testes, com 27, 8, 6 e 18 testes nos quatro arquivos, e todos passaram;
+- a cobertura de `src/` continuou em 100%, com 263 linhas;
+- a evidência `depois/01_pytest.txt` foi gerada novamente sobre este commit. As evidências 02 e 05 foram mantidas, porque o código de `src/` não mudou.

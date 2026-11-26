@@ -21,7 +21,8 @@ deles falhasse, a refatoração tinha mudado um comportamento. Nenhum deles foi 
 começo ao fim do trabalho.
 
 Os testes também transformaram os defeitos encontrados no diagnóstico em valores concretos.
-Cada item mantido tem um teste com nome e comentário dizendo que é defeito conhecido, para
+Cada item mantido tem um teste de caracterização com nome e comentário dizendo que é defeito
+conhecido, para
 ninguém "consertá-lo" por engano durante a refatoração.
 
 ### 2.2 Commits pequenos, com testes e cobertura conferidos antes de cada um

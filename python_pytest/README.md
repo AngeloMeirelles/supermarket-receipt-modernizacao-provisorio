@@ -61,20 +61,20 @@ from shopping_cart import ShoppingCart
 from teller import Teller
 from tests.fake_catalog import FakeCatalog
 
-escova = Product("toothbrush", ProductUnit.EACH)
-creme = Product("toothpaste", ProductUnit.EACH)
-catalogo = FakeCatalog()
-catalogo.add_product(escova, 10.00)
-catalogo.add_product(creme, 15.00)
+toothbrush = Product("toothbrush", ProductUnit.EACH)
+toothpaste = Product("toothpaste", ProductUnit.EACH)
+catalog = FakeCatalog()
+catalog.add_product(toothbrush, 10.00)
+catalog.add_product(toothpaste, 15.00)
 
-caixa = Teller(catalogo)
-caixa.add_bundle_offer([escova, creme])   # combo: 10% nos dois
+teller = Teller(catalog)
+teller.add_bundle_offer([toothbrush, toothpaste])   # combo: 10% nos dois
 
-carrinho = ShoppingCart()
-carrinho.add_item_quantity(escova, 1)
-carrinho.add_item_quantity(creme, 1)
-recibo = caixa.checks_out_articles_from(carrinho)
-print(recibo.total_price())   # 22.5
+cart = ShoppingCart()
+cart.add_item_quantity(toothbrush, 1)
+cart.add_item_quantity(toothpaste, 1)
+receipt = teller.checks_out_articles_from(cart)
+print(receipt.total_price())   # 22.5
 ```
 
 ## 4. Testes
@@ -93,9 +93,9 @@ Resultado esperado: 100 testes passando e 100% de cobertura de `src/`.
 |---|---|---|
 | `tests/test_supermarket.py` | 1 | O teste original do kata, sem alteração |
 | `tests/test_comportamento_legado.py` | 40 | Caracterização: o comportamento do código original, escrito e executado antes de qualquer mudança e nunca alterado |
-| `tests/test_estrategias_oferta.py` | 27 | Cada oferta isolada (Strategy) e a classe base das ofertas por quantidade (Template Method) |
-| `tests/test_fabrica_ofertas.py` | 8 | A fábrica que escolhe a estratégia pelo tipo da oferta |
-| `tests/test_calculadora_descontos.py` | 6 | A calculadora de descontos das ofertas |
+| `tests/test_offer_strategies.py` | 27 | Cada oferta isolada (Strategy) e a classe base das ofertas por quantidade (Template Method) |
+| `tests/test_offer_strategy_factory.py` | 8 | A fábrica que escolhe a estratégia pelo tipo da oferta |
+| `tests/test_discount_calculator.py` | 6 | A calculadora de descontos das ofertas |
 | `tests/test_combos.py` | 18 | Os combos promocionais |
 
 Antes da modernização, o projeto tinha 1 teste e 71% de cobertura. O resumo completo está em
@@ -189,7 +189,7 @@ Cada documento está em Markdown (`.md`, a fonte) e em PDF (`.pdf`) na pasta `do
 | `diagnostico_tecnico` | Como o sistema funciona e os 14 problemas encontrados no código original (D1 a D14) |
 | `requisitos` | Requisitos funcionais (RF01 a RF17) e não funcionais (RNF01 a RNF07), decisões sobre os combos e rastreabilidade |
 | `plano_contingencia` | Ordem das mudanças, riscos, estratégia de retorno, critérios de aceitação e invariantes |
-| `registro_refatoracao` | Cada etapa de código (E3 a E9), com antes e depois e a conferência |
+| `registro_refatoracao` | Cada etapa de código (E3 a E9) e os ajustes finais, com antes e depois e a conferência |
 | `padroes_projeto` | Strategy, Template Method e fábrica simples, com diagramas, trechos, testes e SOLID |
 | `evidencias_testes` | Testes e cobertura antes e depois, preservação do comportamento e cenários de fronteira |
 | `seguranca_antes_depois` | Bandit, pip-audit e Safety antes e depois, triagem e riscos remanescentes |

@@ -8,9 +8,9 @@ O trabalho aplica dois padrões de projeto: Strategy e Template Method. Uma fáb
 
 | Padrão | Onde | Problema resolvido | Testes |
 |---|---|---|---|
-| Strategy | `src/offer_strategies.py`: interface `IOfferStrategy` e uma classe por oferta | D1 (um método decide todas as ofertas com `if` e `elif`), D2 (a mesma oferta espalhada no método) e D6 (o valor `argument` com vários significados) | `tests/test_estrategias_oferta.py` |
-| Template Method | `src/offer_strategies.py`: classe base `QuantityOfferStrategy` | D3 (a mesma conta copiada nas três ofertas por quantidade) | `tests/test_estrategias_oferta.py` |
-| Fábrica simples (apoio ao Strategy) | `src/offer_strategy_factory.py`: `OfferStrategyFactory` | o restante do D1: a escolha da classe de cada oferta saiu do carrinho | `tests/test_fabrica_ofertas.py` |
+| Strategy | `src/offer_strategies.py`: interface `IOfferStrategy` e uma classe por oferta | D1 (um método decide todas as ofertas com `if` e `elif`), D2 (a mesma oferta espalhada no método) e D6 (o valor `argument` com vários significados) | `tests/test_offer_strategies.py` |
+| Template Method | `src/offer_strategies.py`: classe base `QuantityOfferStrategy` | D3 (a mesma conta copiada nas três ofertas por quantidade) | `tests/test_offer_strategies.py` |
+| Fábrica simples (apoio ao Strategy) | `src/offer_strategy_factory.py`: `OfferStrategyFactory` | o restante do D1: a escolha da classe de cada oferta saiu do carrinho | `tests/test_offer_strategy_factory.py` |
 
 ## 2. Diagrama de classes antes
 
@@ -175,22 +175,22 @@ for product, quantity in product_quantities.items():
 - A decisão por tipo de oferta foi retirada do carrinho e da calculadora (D1 resolvido, com o apoio da fábrica).
 - Cada oferta pode ser testada isoladamente, sem a necessidade de montar caixa, carrinho ou recibo.
 
-O arquivo `tests/test_estrategias_oferta.py` apresenta, por exemplo, o teste da oferta "leve 3, pague 2":
+O arquivo `tests/test_offer_strategies.py` apresenta, por exemplo, o teste da oferta "leve 3, pague 2":
 
 ```python
 @pytest.mark.parametrize(
-    "quantidade, desconto_esperado",
+    "quantity, expected_discount",
     [
         (3, -0.99),
         (7, -1.98),
     ],
 )
-def test_leve_3_pague_2(quantidade, desconto_esperado):
-    desconto = ThreeForTwoStrategy().calculate_discount(ESCOVA, quantidade, 0.99)
+def test_three_for_two(quantity, expected_discount):
+    discount = ThreeForTwoStrategy().calculate_discount(TOOTHBRUSH, quantity, 0.99)
 
-    assert desconto.product is ESCOVA
-    assert desconto.description == "3 for 2"
-    assert desconto.discount_amount == pytest.approx(desconto_esperado)
+    assert discount.product is TOOTHBRUSH
+    assert discount.description == "3 for 2"
+    assert discount.discount_amount == pytest.approx(expected_discount)
 ```
 
 ## 4. Template Method
@@ -279,10 +279,10 @@ Os defeitos identificados no código original foram mantidos, conforme definido 
 
 Uma nova oferta do mesmo tipo pode ser implementada preenchendo os métodos definidos pela classe base, sem precisar repetir a lógica do cálculo.
 
-O arquivo `tests/test_estrategias_oferta.py` demonstra essa possibilidade com uma oferta adicional utilizada para verificar a extensão da classe base: "4 por 6,00".
+O arquivo `tests/test_offer_strategies.py` demonstra essa possibilidade com uma oferta adicional utilizada para verificar a extensão da classe base: "4 por 6,00".
 
 ```python
-class QuatroPorSeis(QuantityOfferStrategy):
+class FourForSixStrategy(QuantityOfferStrategy):
     def _group_size(self):
         return 4
 
@@ -402,9 +402,9 @@ Os combos foram implementados por meio da `BundleCalculator`, sem necessidade de
 
 | Arquivo | O que demonstra |
 |---|---|
-| `tests/test_estrategias_oferta.py` | As quatro ofertas testadas isoladamente, sem caixa, carrinho ou recibo; a interface e a classe base não podem ser instanciadas diretamente; as três ofertas por quantidade utilizam a mesma classe base; a oferta adicional "4 por 6,00" funciona com a implementação dos métodos específicos. |
-| `tests/test_fabrica_ofertas.py` | Cada tipo de oferta gera a classe correspondente; o valor cadastrado é repassado à estratégia; um tipo desconhecido não gera estratégia. |
-| `tests/test_calculadora_descontos.py` | A calculadora utiliza as estratégias na ordem dos produtos, sem depender de caixa, carrinho ou recibo. |
+| `tests/test_offer_strategies.py` | As quatro ofertas testadas isoladamente, sem caixa, carrinho ou recibo; a interface e a classe base não podem ser instanciadas diretamente; as três ofertas por quantidade utilizam a mesma classe base; a oferta adicional "4 por 6,00" funciona com a implementação dos métodos específicos. |
+| `tests/test_offer_strategy_factory.py` | Cada tipo de oferta gera a classe correspondente; o valor cadastrado é repassado à estratégia; um tipo desconhecido não gera estratégia. |
+| `tests/test_discount_calculator.py` | A calculadora utiliza as estratégias na ordem dos produtos, sem depender de caixa, carrinho ou recibo. |
 | `tests/test_comportamento_legado.py` | Os 40 testes de caracterização, escritos com base no código original, passam sem alterações após a aplicação dos padrões. |
 
 O registro de cada etapa de desenvolvimento, incluindo os commits correspondentes, está em `docs/registro_refatoracao.md`, nas seções 6 (Strategy), 7 (Template Method) e 8 (fábrica simples).

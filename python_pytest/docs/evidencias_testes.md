@@ -18,10 +18,15 @@ novo para este documento: todos os números vêm desses arquivos.
 |---|---|---|---|---|---|
 | Código original | commit `c72d68a` | 1 (o teste original do kata) | 1 passou | 71% (129 linhas, 37 sem teste) | `antes/01_pytest.txt`, `antes/02_cobertura.txt` |
 | Com a caracterização (E1) | commit `c72d68a`, sem nenhuma mudança em `src/` | 41 (40 de caracterização + o original) | 41 passaram | 100% (129 linhas) | `antes/03_caracterizacao_pytest.txt`, `antes/04_caracterizacao_cobertura.txt` |
-| Final | branch `modernizacao`, commit `4bdccf0` | 100 | 100 passaram | 100% (271 linhas) | `depois/01_pytest.txt`, `depois/02_cobertura.txt` |
+| Final | branch `modernizacao`, commits `0b70856` e `b968277` | 100 | 100 passaram | 100% (263 linhas) | `depois/01_pytest.txt`, `depois/02_cobertura.txt` |
 
 A meta da equipe era ficar acima de 90% de cobertura (RNF03). O enunciado não fixa um
 percentual.
+
+No final, a cobertura (`depois/02_cobertura.txt`) foi medida no commit `0b70856`, que retirou os
+comentários e as docstrings do código, e a execução dos testes (`depois/01_pytest.txt`) no commit
+`b968277`, que traduziu para o inglês os nomes dos testes novos. O código de `src/` é o mesmo
+nos dois commits.
 
 ### 2.1 Cobertura por arquivo
 
@@ -47,16 +52,20 @@ No código final:
 | `catalog.py` | 6 | 0 | 100% |
 | `discount_calculator.py` | 17 | 0 | 100% |
 | `model_objects.py` | 32 | 0 | 100% |
-| `offer_strategies.py` | 59 | 0 | 100% |
+| `offer_strategies.py` | 51 | 0 | 100% |
 | `offer_strategy_factory.py` | 11 | 0 | 100% |
 | `receipt.py` | 28 | 0 | 100% |
 | `receipt_printer.py` | 45 | 0 | 100% |
 | `shopping_cart.py` | 24 | 0 | 100% |
 | `teller.py` | 29 | 0 | 100% |
-| **Total** | **271** | **0** | **100%** |
+| **Total** | **263** | **0** | **100%** |
 
 O `receipt_printer.py` passou a contar na cobertura de `src/` na E3, quando saiu da pasta de
 testes (D14). Por isso o total de linhas não é comparável diretamente entre antes e depois.
+O total final era de 271 linhas até a retirada dos comentários e das docstrings (commit
+`0b70856`). Com essa retirada, os 4 métodos abstratos passaram a ter só `...` no corpo, e a
+ferramenta de cobertura deixa de contar esses métodos por padrão, com 2 linhas cada: no
+`offer_strategies.py`, o total passou de 59 para 51 linhas.
 
 ### 2.2 Testes por arquivo no final
 
@@ -64,9 +73,9 @@ testes (D14). Por isso o total de linhas não é comparável diretamente entre a
 |---|---|---|
 | `tests/test_supermarket.py` | 1 | O teste original do kata, sem alteração |
 | `tests/test_comportamento_legado.py` | 40 | Caracterização do código original, sem alteração desde que foi escrita |
-| `tests/test_estrategias_oferta.py` | 27 | Cada oferta isolada e a classe base das ofertas por quantidade |
-| `tests/test_fabrica_ofertas.py` | 8 | A fábrica de estratégias |
-| `tests/test_calculadora_descontos.py` | 6 | A calculadora de descontos |
+| `tests/test_offer_strategies.py` | 27 | Cada oferta isolada e a classe base das ofertas por quantidade |
+| `tests/test_offer_strategy_factory.py` | 8 | A fábrica de estratégias |
+| `tests/test_discount_calculator.py` | 6 | A calculadora de descontos |
 | `tests/test_combos.py` | 18 | Os combos promocionais |
 | **Total** | **100** | |
 
@@ -119,15 +128,15 @@ recibo impresso é comparado caractere por caractere. Isso cobre o risco R2 do p
 | Cenário | Exemplo verificado | Arquivo de teste |
 |---|---|---|
 | Carrinho vazio | recibo sem itens e total 0; recibo impresso vazio | `test_comportamento_legado.py` |
-| Leve 3, pague 2 abaixo, no limite e acima do mínimo | 2 escovas sem desconto; 3 escovas com -0,99; 7 escovas | `test_comportamento_legado.py`, `test_estrategias_oferta.py` |
-| 2 por valor com quantidade 1, par e ímpar | 1 caixa sem desconto; 2 e 4 caixas; 3 e 5 caixas com o defeito D12 (2,175 e 3,165) | `test_comportamento_legado.py`, `test_estrategias_oferta.py` |
-| 5 por valor abaixo, no limite e acima do mínimo | 4, 5 e 6 unidades | `test_comportamento_legado.py`, `test_estrategias_oferta.py` |
-| Desconto percentual com qualquer percentual | 10% e 20%, inclusive sobre fração de peso (D8) | `test_comportamento_legado.py`, `test_fabrica_ofertas.py` |
-| Frações de peso | fração que não completa grupo; 3,5 kg de maçã com o defeito D13 | `test_comportamento_legado.py`, `test_estrategias_oferta.py` |
+| Leve 3, pague 2 abaixo, no limite e acima do mínimo | 2 escovas sem desconto; 3 escovas com -0,99; 7 escovas | `test_comportamento_legado.py`, `test_offer_strategies.py` |
+| 2 por valor com quantidade 1, par e ímpar | 1 caixa sem desconto; 2 e 4 caixas; 3 e 5 caixas com o defeito D12 (2,175 e 3,165) | `test_comportamento_legado.py`, `test_offer_strategies.py` |
+| 5 por valor abaixo, no limite e acima do mínimo | 4, 5 e 6 unidades | `test_comportamento_legado.py`, `test_offer_strategies.py` |
+| Desconto percentual com qualquer percentual | 10% e 20%, inclusive sobre fração de peso (D8) | `test_comportamento_legado.py`, `test_offer_strategy_factory.py` |
+| Frações de peso | fração que não completa grupo; 3,5 kg de maçã com o defeito D13 | `test_comportamento_legado.py`, `test_offer_strategies.py` |
 | Mesmo produto em mais de uma linha | duas linhas no recibo e oferta sobre a quantidade somada (P1) | `test_comportamento_legado.py` |
-| Oferta de produto fora do carrinho e troca de oferta | nenhum desconto; a última oferta cadastrada vale | `test_comportamento_legado.py`, `test_calculadora_descontos.py` |
+| Oferta de produto fora do carrinho e troca de oferta | nenhum desconto; a última oferta cadastrada vale | `test_comportamento_legado.py`, `test_discount_calculator.py` |
 | Ordem dos descontos | na ordem dos produtos no carrinho; combos por último | `test_comportamento_legado.py`, `test_combos.py` |
-| Tipo de oferta desconhecido | a fábrica devolve `None` e não há desconto | `test_fabrica_ofertas.py`, `test_calculadora_descontos.py` |
+| Tipo de oferta desconhecido | a fábrica devolve `None` e não há desconto | `test_offer_strategy_factory.py`, `test_discount_calculator.py` |
 | Combo completo, incompleto, repetido e excedente | 22,50; 10,00; 45,00; 32,50 | `test_combos.py` |
 | Cadastro de combo inválido | lista vazia, um produto só e produto repetido são recusados | `test_combos.py` |
 | Combo com produto por peso | 1,5 kg forma combo sobre 1 kg (11,80); 0,5 kg não forma (11,00) | `test_combos.py` |
