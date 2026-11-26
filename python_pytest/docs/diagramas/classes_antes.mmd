@@ -1,0 +1,68 @@
+---
+title: Antes (commit c72d68a) - o carrinho calcula todas as ofertas
+---
+classDiagram
+    direction TB
+    class Teller {
+        +catalog: SupermarketCatalog
+        +offers: dict
+        +add_special_offer(offer_type, product, argument)
+        +checks_out_articles_from(the_cart) Receipt
+        +product_with_name(name)
+    }
+    class ShoppingCart {
+        +items
+        +product_quantities
+        +add_item(product)
+        +add_item_quantity(product, quantity)
+        +handle_offers(receipt, offers, catalog)
+    }
+    class SupermarketCatalog {
+        +add_product(product, price)
+        +unit_price(product)
+    }
+    class Receipt {
+        +total_price()
+        +add_product(product, quantity, price, total_price)
+        +add_discount(discount)
+    }
+    class ReceiptItem {
+        +product
+        +quantity
+        +price
+        +total_price
+    }
+    class Offer {
+        +offer_type: SpecialOfferType
+        +product: Product
+        +argument: float
+    }
+    class SpecialOfferType {
+        <<enumeration>>
+        THREE_FOR_TWO
+        TEN_PERCENT_DISCOUNT
+        TWO_FOR_AMOUNT
+        FIVE_FOR_AMOUNT
+    }
+    class Discount {
+        +product
+        +description
+        +discount_amount
+    }
+    class Product {
+        +name
+        +unit
+    }
+    note for ShoppingCart "handle_offers: 39 linhas de if/elif<br/>que calculam as 4 ofertas<br/>(D1, D2, D3, D4 e D6)"
+    Teller --> SupermarketCatalog : usa preços
+    Teller --> Offer : guarda
+    Teller ..> ShoppingCart : chama handle_offers
+    Teller ..> Receipt : cria
+    ShoppingCart ..> Discount : cria
+    ShoppingCart ..> Receipt : adiciona descontos
+    ShoppingCart ..> SupermarketCatalog : usa preços
+    Receipt *-- ReceiptItem
+    Receipt o-- Discount
+    Offer --> SpecialOfferType
+    Offer --> Product
+    Discount --> Product

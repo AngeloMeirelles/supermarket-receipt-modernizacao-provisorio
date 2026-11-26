@@ -1,0 +1,81 @@
+---
+title: Depois (branch modernizacao) - Strategy, Template Method e fábrica simples
+---
+classDiagram
+    direction TB
+    class Teller {
+        +catalog: SupermarketCatalog
+        +offers: dict
+        +bundles: list~Bundle~
+        +add_special_offer(offer_type, product, argument)
+        +add_bundle_offer(products)
+        +checks_out_articles_from(the_cart) Receipt
+    }
+    class ShoppingCart {
+        +items
+        +product_quantities
+        +add_item_quantity(product, quantity)
+        +handle_offers(receipt, offers, catalog)
+    }
+    class DiscountCalculator {
+        +offer_discounts(product_quantities, offers) list
+    }
+    class BundleCalculator {
+        +bundle_discounts(product_quantities, bundles, offers) list
+    }
+    class Bundle {
+        +products: tuple
+    }
+    class OfferStrategyFactory {
+        -_STRATEGY_BUILDERS: dict
+        +create(offer)$ IOfferStrategy
+    }
+    class IOfferStrategy {
+        <<interface>>
+        +calculate_discount(product, quantity, unit_price)* Discount
+    }
+    class PercentDiscountStrategy {
+        -_percent
+        +calculate_discount(product, quantity, unit_price) Discount
+    }
+    class QuantityOfferStrategy {
+        <<abstract>>
+        +calculate_discount(product, quantity, unit_price) Discount
+        #_group_size()* int
+        #_price_per_group(unit_price)* float
+        #_description()* str
+        #_number_of_groups(whole_units) float
+    }
+    class ThreeForTwoStrategy {
+        #_group_size() int
+        #_price_per_group(unit_price) float
+        #_description() str
+    }
+    class TwoForAmountStrategy {
+        -_pair_price
+        #_group_size() int
+        #_price_per_group(unit_price) float
+        #_description() str
+        #_number_of_groups(whole_units) float
+    }
+    class FiveForAmountStrategy {
+        -_group_price
+        #_group_size() int
+        #_price_per_group(unit_price) float
+        #_description() str
+    }
+    note for QuantityOfferStrategy "Template Method: calculate_discount<br/>é o roteiro fixo; as filhas só<br/>preenchem as lacunas"
+    note for TwoForAmountStrategy "troca _number_of_groups:<br/>defeito D12 mantido"
+    Teller ..> ShoppingCart : chama handle_offers
+    Teller ..> BundleCalculator : pede descontos de combo
+    Teller --> Bundle : guarda
+    ShoppingCart ..> DiscountCalculator : repassa o cálculo
+    DiscountCalculator ..> OfferStrategyFactory : pede a estratégia
+    DiscountCalculator ..> IOfferStrategy : calculate_discount
+    OfferStrategyFactory ..> IOfferStrategy : cria
+    BundleCalculator ..> Bundle : usa
+    IOfferStrategy <|.. PercentDiscountStrategy
+    IOfferStrategy <|.. QuantityOfferStrategy
+    QuantityOfferStrategy <|-- ThreeForTwoStrategy
+    QuantityOfferStrategy <|-- TwoForAmountStrategy
+    QuantityOfferStrategy <|-- FiveForAmountStrategy
