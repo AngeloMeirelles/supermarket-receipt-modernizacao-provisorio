@@ -9,11 +9,11 @@ from offer_strategies import (
 )
 from offer_strategy_factory import OfferStrategyFactory
 
-ESCOVA = Product("toothbrush", ProductUnit.EACH)
+TOOTHBRUSH = Product("toothbrush", ProductUnit.EACH)
 
 
 @pytest.mark.parametrize(
-    "tipo, classe",
+    "offer_type, strategy_class",
     [
         (SpecialOfferType.THREE_FOR_TWO, ThreeForTwoStrategy),
         (SpecialOfferType.TEN_PERCENT_DISCOUNT, PercentDiscountStrategy),
@@ -21,27 +21,27 @@ ESCOVA = Product("toothbrush", ProductUnit.EACH)
         (SpecialOfferType.FIVE_FOR_AMOUNT, FiveForAmountStrategy),
     ],
 )
-def test_fabrica_escolhe_a_estrategia_pelo_tipo_da_oferta(tipo, classe):
-    estrategia = OfferStrategyFactory.create(Offer(tipo, ESCOVA, 10.0))
+def test_factory_chooses_the_strategy_by_offer_type(offer_type, strategy_class):
+    strategy = OfferStrategyFactory.create(Offer(offer_type, TOOTHBRUSH, 10.0))
 
-    assert isinstance(estrategia, classe)
+    assert isinstance(strategy, strategy_class)
 
 
 @pytest.mark.parametrize(
-    "tipo, valor, texto",
+    "offer_type, argument, description",
     [
         (SpecialOfferType.TEN_PERCENT_DISCOUNT, 15.0, "15.0% off"),
         (SpecialOfferType.TWO_FOR_AMOUNT, 0.99, "2 for 0.99"),
         (SpecialOfferType.FIVE_FOR_AMOUNT, 7.49, "5 for 7.49"),
     ],
 )
-def test_fabrica_passa_o_valor_cadastrado_para_a_estrategia(tipo, valor, texto):
-    estrategia = OfferStrategyFactory.create(Offer(tipo, ESCOVA, valor))
+def test_factory_passes_the_registered_argument_to_the_strategy(offer_type, argument, description):
+    strategy = OfferStrategyFactory.create(Offer(offer_type, TOOTHBRUSH, argument))
 
-    desconto = estrategia.calculate_discount(ESCOVA, 5, 1.0)
+    discount = strategy.calculate_discount(TOOTHBRUSH, 5, 1.0)
 
-    assert desconto.description == texto
+    assert discount.description == description
 
 
-def test_fabrica_devolve_none_para_tipo_de_oferta_desconhecido():
-    assert OfferStrategyFactory.create(Offer("tipo desconhecido", ESCOVA, 10.0)) is None
+def test_factory_returns_none_for_unknown_offer_type():
+    assert OfferStrategyFactory.create(Offer("unknown offer type", TOOTHBRUSH, 10.0)) is None
