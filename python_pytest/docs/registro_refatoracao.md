@@ -15,8 +15,8 @@ comportamento não mudou. As próximas etapas são acrescentadas aqui à medida 
 Antes de cada commit:
 
 - `pytest`: todos os testes precisam passar, sem nenhuma alteração nos testes que já existiam.
-  Eram 41 até a E4 (40 de caracterização e o teste original) e passaram a 60 com os testes das
-  ofertas isoladas da E5;
+  Eram 41 até a E4 (40 de caracterização e o teste original), passaram a 60 com os testes das
+  ofertas isoladas da E5 e a 68 com os testes da classe base da E6;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode
   cair.
 
@@ -34,6 +34,8 @@ D12 e D13). Se um deles falhar, a etapa mudou um comportamento.
 | E4 | `9ae05b4` | Anotações de tipo | D9 | 41 passaram | 100% (184 linhas) |
 | E5 | `09b4a70` | Uma classe para cada oferta (Strategy) | D1 (em parte), D2 e D6 | 41 passaram | 100% (212 linhas) |
 | E5 | `e5c23a6` | Testes de cada oferta isolada | RNF05 e D11 | 60 passaram | 100% (212 linhas) |
+| E6 | `9f0255c` | Conta comum das ofertas por quantidade numa classe base (Template Method) | D3 | 60 passaram | 100% (227 linhas) |
+| E6 | `60fb453` | Testes da classe base | RNF04 | 68 passaram | 100% (227 linhas) |
 
 O número de linhas muda porque o ReceiptPrinter entrou na conta na E3, uma variável foi
 retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também contam e a
@@ -305,3 +307,118 @@ método do carrinho (D4 e D11).
 Os 41 testes que já existiam passaram sem nenhuma alteração depois do commit `09b4a70`, e os 60
 passaram depois do commit `e5c23a6`. A cobertura de `src/` ficou em 100%, com 212 linhas, e o
 arquivo novo das ofertas está todo coberto.
+
+## 7. E6: conta comum das ofertas por quantidade (Template Method)
+
+### 7.1 Problema
+
+Depois da E5, cada oferta tinha a sua classe, mas as três ofertas por quantidade ("leve 3,
+pague 2", "2 por valor" e "5 por valor") ainda repetiam a mesma conta, cada uma com os seus
+números (D3). Uma correção feita numa cópia não valeria para as outras, e o D12 nasceu
+justamente de uma das cópias ser diferente.
+
+As três calculam o desconto do mesmo jeito:
+
+> desconto = quantidade × preço − (preço do grupo × número de grupos + unidades que sobram × preço)
+
+Só mudam o tamanho do grupo, o preço do grupo, o texto do desconto e, no "2 por valor", a forma
+de contar os grupos.
+
+### 7.2 Padrão aplicado
+
+Template Method: a conta fica escrita uma vez, numa classe base, com lacunas que cada oferta
+preenche. A classe base é `QuantityOfferStrategy`, em `src/offer_strategies.py`. O método
+`calculate_discount` dela é o roteiro fixo:
+
+```python
+def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None:
+    whole_units = int(quantity)
+    if whole_units < self._group_size():
+        return None
+    price_with_offer = (self._price_per_group(unit_price) * self._number_of_groups(whole_units)
+                        + whole_units % self._group_size() * unit_price)
+    discount_amount = quantity * unit_price - price_with_offer
+    return Discount(product, self._description(), -discount_amount)
+```
+
+As lacunas são os métodos que cada oferta escreve:
+
+| Lacuna | Leve 3, pague 2 | 2 por valor | 5 por valor |
+|---|---|---|---|
+| `_group_size()`: tamanho do grupo | 3 | 2 | 5 |
+| `_price_per_group()`: preço de um grupo completo | 2 × preço da unidade | `pair_price` | `group_price` |
+| `_description()`: texto no recibo | `3 for 2` | `2 for` e o valor | `5 for` e o valor |
+| `_number_of_groups()`: quantos grupos | padrão da classe base | trocado (D12) | padrão da classe base |
+
+As três primeiras lacunas são obrigatórias (`@abc.abstractmethod`). A quarta tem um padrão na
+classe base, a contagem de grupos inteiros, e só o "2 por valor" troca. O `_` no início dos
+nomes indica que são passos internos do roteiro: quem usa as ofertas continua chamando apenas
+`calculate_discount`. A oferta de percentual não é por quantidade e continua ligada direto à
+interface `IOfferStrategy`.
+
+### 7.3 Antes e depois
+
+"Leve 3, pague 2", antes:
+
+```python
+class ThreeForTwoStrategy(IOfferStrategy):
+
+    def calculate_discount(self, product: Product, quantity: float, unit_price: float) -> Discount | None:
+        quantity_as_int = int(quantity)
+        if quantity_as_int < THREE_FOR_TWO_GROUP_SIZE:
+            return None
+        number_of_groups = math.floor(quantity_as_int / THREE_FOR_TWO_GROUP_SIZE)
+        discount_amount = quantity * unit_price - (
+                    (number_of_groups * THREE_FOR_TWO_PAID_UNITS * unit_price) + quantity_as_int % THREE_FOR_TWO_GROUP_SIZE * unit_price)
+        return Discount(product, "3 for 2", -discount_amount)
+```
+
+Depois:
+
+```python
+class ThreeForTwoStrategy(QuantityOfferStrategy):
+
+    def _group_size(self) -> int:
+        return THREE_FOR_TWO_GROUP_SIZE
+
+    def _price_per_group(self, unit_price: float) -> float:
+        return THREE_FOR_TWO_PAID_UNITS * unit_price
+
+    def _description(self) -> str:
+        return "3 for 2"
+```
+
+O "2 por valor" e o "5 por valor" ficaram no mesmo formato. Nenhuma das três tem conta própria:
+a conta existe só na classe base, e o D3 está resolvido.
+
+### 7.4 Itens mantidos
+
+Com a conta num lugar só, os defeitos mantidos ficaram fáceis de apontar:
+
+- D12: está inteiro no método `_number_of_groups` da classe `TwoForAmountStrategy`, que conta
+  os pares com divisão comum. A correção seria apagar esse método, porque passaria a valer a
+  contagem de grupos inteiros da classe base. Um comentário no código registra isso;
+- D13: está numa linha da classe base, porque os grupos e a sobra usam as unidades inteiras, e
+  o preço sem oferta usa a quantidade completa. A documentação da classe registra isso.
+
+### 7.5 Testes da classe base
+
+Foram acrescentados 8 testes em `tests/test_estrategias_oferta.py`, que mostram o benefício do
+padrão:
+
+- as três ofertas por quantidade usam a mesma classe base, e a classe base sozinha não pode ser
+  criada;
+- uma oferta inventada só para o teste, "4 por 6,00" (`QuatroPorSeis`), foi criada apenas
+  preenchendo as três lacunas, sem escrever nenhuma conta. Com 4 unidades a 1,79, o desconto é
+  de 1,16, e abaixo de 4 unidades não há desconto. É a prova de que uma promoção nova do mesmo
+  tipo não precisa de conta nova nem altera as ofertas existentes (RNF04).
+
+### 7.6 Conferência
+
+- Os 60 testes que já existiam passaram sem nenhuma alteração depois do commit `9f0255c`, e os
+  68 passaram depois do commit `60fb453`.
+- As classes novas foram comparadas com as da E5 em 8.448 casos, de 0 a 30 unidades, com
+  frações e onze preços diferentes, exigindo o mesmo número até a última casa. Não houve
+  nenhuma diferença. Essa comparação foi feita com um script à parte, fora do repositório, como
+  cuidado extra com o arredondamento (risco R2 do plano).
+- A cobertura de `src/` ficou em 100%, com 227 linhas.
