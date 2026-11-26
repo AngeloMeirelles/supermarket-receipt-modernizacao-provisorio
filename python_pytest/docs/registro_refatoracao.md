@@ -6,9 +6,11 @@ Data: 25/11/2026.
 
 ## 1. Objetivo
 
-Este documento registra cada etapa da refatoração já feita: o que mudou no código, qual item
-do diagnóstico foi resolvido, trechos de antes e depois e como foi conferido que o
-comportamento não mudou. As próximas etapas são acrescentadas aqui à medida que forem feitas.
+Este documento registra cada etapa de código já feita: a refatoração (E3 a E8) e a
+implementação dos combos (E9). Para cada etapa, mostra o que mudou no código, qual item do
+diagnóstico ou requisito foi atendido, trechos de antes e depois e como foi conferido que o
+comportamento existente não mudou. As próximas etapas são acrescentadas aqui à medida que forem
+feitas.
 
 ## 2. Como cada etapa é conferida
 
@@ -17,7 +19,8 @@ Antes de cada commit:
 - `pytest`: todos os testes precisam passar, sem nenhuma alteração nos testes que já existiam.
   Eram 41 até a E4 (40 de caracterização e o teste original), passaram a 60 com os testes das
   ofertas isoladas da E5, a 68 com os testes da classe base da E6, a 76 com os testes da
-  fábrica da E7 e a 82 com os testes da calculadora da E8;
+  fábrica da E7, a 82 com os testes da calculadora da E8 e a 100 com os testes dos combos da
+  E9;
 - `coverage run --source=src -m pytest` e `coverage report -m`: a cobertura de `src/` não pode
   cair.
 
@@ -40,6 +43,7 @@ D12 e D13). Se um deles falhar, a etapa mudou um comportamento.
 | E7 | `0b1c7aa` | Fábrica simples escolhe a estratégia pelo tipo da oferta, com os testes da fábrica | D1 | 76 passaram | 100% (230 linhas) |
 | E8 | `a123262` | Cálculo dos descontos sai do carrinho para uma classe própria | D4 | 76 passaram | 100% (239 linhas) |
 | E8 | `e40c587` | Testes da calculadora de descontos | RNF05 | 82 passaram | 100% (239 linhas) |
+| E9 | `89f6a53` | Combos promocionais, com os testes dos combos | RF11 a RF17 | 100 passaram | 100% (271 linhas) |
 
 O número de linhas muda porque o ReceiptPrinter entrou na conta na E3, uma variável foi
 retirada do caixa, as constantes foram acrescentadas, os `import` dos tipos também contam e a
@@ -614,3 +618,86 @@ passaram depois do commit `e40c587`. A cobertura de `src/` ficou em 100%, com 23
 | Responsabilidade Única | o carrinho só guarda itens, a calculadora calcula, e cada estratégia cuida de uma oferta |
 | Aberto/Fechado | uma oferta nova é uma classe nova e uma linha na tabela da fábrica, sem mexer no carrinho nem nas outras ofertas. Os testes da E6 mostram isso com a oferta inventada "4 por 6,00" |
 | Inversão de Dependência | a calculadora recebe o catálogo pelo construtor e depende do contrato `SupermarketCatalog`. Nos testes, recebe o catálogo de teste |
+
+## 11. E9: combos promocionais
+
+### 11.1 O que foi pedido
+
+O enunciado pede um desconto de 10% sobre os produtos de cada combo completo (item 3.2). As
+regras foram definidas nos requisitos:
+
+| Requisito | Regra |
+|---|---|
+| RF11 | os descontos de combo vêm depois dos descontos das ofertas |
+| RF12 | o combo precisa de dois ou mais produtos diferentes; senão, o cadastro é recusado com erro |
+| RF13 | 10% sobre uma unidade de cada produto do combo, com uma linha `bundle 10% off` por produto |
+| RF14 | o número de combos é a menor quantidade entre os produtos do combo; o que sobra paga preço normal |
+| RF15 | produto vendido por peso: só os quilos inteiros entram no combo |
+| RF16 | produto com oferta própria cadastrada não entra em combo |
+| RF17 | combos com produto em comum: cada unidade entra num combo só, na ordem de cadastro dos combos |
+
+### 11.2 Implementação
+
+- `Bundle`, em `src/model_objects.py`: o combo. Guarda os produtos e recusa o cadastro com menos
+  de dois produtos ou com produto repetido (`ValueError`), como pede o RF12.
+- `Teller`, em `src/teller.py`: o método novo `add_bundle_offer(products)` cadastra um combo, e
+  a lista `bundles` guarda os combos na ordem de cadastro. Ao fechar a compra, depois dos
+  descontos das ofertas, o caixa pede os descontos de combo à calculadora de combos e os
+  acrescenta ao recibo. Por isso eles saem por último (RF11).
+- `BundleCalculator`, no arquivo novo `src/bundle_calculator.py`: calcula os descontos dos
+  combos. Ela recebe o catálogo pelo construtor, como a calculadora das ofertas.
+
+O cálculo segue estes passos:
+
+1. separa as unidades que podem entrar em combo: só as unidades inteiras (RF15) e só de produtos
+   sem oferta própria (RF16);
+2. percorre os combos na ordem de cadastro. Para cada combo, o número de combos formados é a
+   menor quantidade disponível entre os seus produtos (RF14);
+3. gasta essas unidades, para que não sirvam para outro combo (RF17);
+4. cria uma linha `bundle 10% off` por produto do combo, com 10% do preço das unidades que
+   entraram (RF13).
+
+Exemplo do RF17, com o combo A (escova e creme dental) cadastrado antes do combo B (escova e fio
+dental), e 2 escovas, 1 creme dental e 1 fio dental no carrinho:
+
+| Combo | Disponível antes | Combos formados | Disponível depois |
+|---|---|---|---|
+| A | escova 2, creme dental 1 | 1 | escova 1, creme dental 0 |
+| B | escova 1, fio dental 1 | 1 | escova 0, fio dental 0 |
+
+O recibo recebe quatro linhas de desconto: escova -1,00 e creme dental -1,50 do combo A, escova
+-1,00 e fio dental -0,50 do combo B. O total é 36,00, como diz o requisito.
+
+### 11.3 Nada das ofertas existentes mudou
+
+O commit `89f6a53` alterou só `src/model_objects.py` (classe nova `Bundle`) e `src/teller.py`
+(cadastro do combo e soma dos descontos de combo), além de criar `src/bundle_calculator.py` e
+`tests/test_combos.py`. Os arquivos das ofertas (`offer_strategies.py`,
+`offer_strategy_factory.py`, `discount_calculator.py` e `shopping_cart.py`) não foram tocados.
+É a prova pedida no RNF04: a promoção nova entrou sem alterar o código das ofertas existentes.
+
+Sem combo cadastrado, o caixa não gera nenhum desconto de combo, e o recibo fica idêntico ao de
+antes (RNF02). Os 82 testes que já existiam, incluindo os de caracterização, passaram sem
+nenhuma alteração.
+
+### 11.4 Testes dos combos
+
+O arquivo `tests/test_combos.py`, com o nome sugerido no enunciado, tem 18 testes. Os preços são
+os do enunciado: escova a 10,00 e creme dental a 15,00. O fio dental a 5,00 e a maçã a 2,00 o
+quilo completam os casos de produto em comum e de produto por peso.
+
+| Grupo | Casos |
+|---|---|
+| Seção 6 dos requisitos | combo completo (22,50), combo incompleto (10,00), combo repetido (45,00) e produto excedente (32,50) |
+| Cadastro (RF12) | aceita dois produtos diferentes; recusa lista vazia, um produto só e produto repetido |
+| Peso (RF15) | 1,5 kg de maçã e 1 escova formam um combo sobre 1 kg (11,80); 0,5 kg não forma combo (11,00) |
+| Convivência com ofertas (RF16) | 3 escovas com "leve 3, pague 2" e 1 creme dental: só a oferta vale (35,00); 1 escova com "leve 3, pague 2" e 1 creme dental: nenhum desconto (25,00) |
+| Produto em comum (RF17) | com uma escova, só o combo cadastrado primeiro se forma (27,50); com duas escovas, os dois combos se formam (36,00) |
+| Ordem e recibo (RF11 e RNF02) | desconto de combo depois do desconto de oferta; sem combo cadastrado, nenhum desconto de combo; recibo impresso com as linhas do combo |
+| Regra isolada (RNF05) | a calculadora de combos chamada direto, sem caixa, carrinho nem recibo |
+
+### 11.5 Conferência
+
+Código e testes foram no mesmo commit (`89f6a53`), para nenhum commit ter código sem teste. Os
+82 testes que já existiam passaram sem alteração, os 100 passaram no total, e a cobertura de
+`src/` ficou em 100%, com 271 linhas.
