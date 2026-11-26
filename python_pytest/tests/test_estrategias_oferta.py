@@ -10,6 +10,7 @@ from offer_strategies import (
     FiveForAmountStrategy,
     IOfferStrategy,
     PercentDiscountStrategy,
+    QuantityOfferStrategy,
     ThreeForTwoStrategy,
     TwoForAmountStrategy,
 )
@@ -137,4 +138,56 @@ def test_cinco_por_valor(quantidade, desconto_esperado):
 
     assert desconto.product is CREME_DENTAL
     assert desconto.description == "5 for 7.49"
+    assert desconto.discount_amount == pytest.approx(desconto_esperado)
+
+
+# Classe base das ofertas por quantidade (Template Method)
+
+@pytest.mark.parametrize(
+    "estrategia",
+    [
+        ThreeForTwoStrategy(),
+        TwoForAmountStrategy(0.99),
+        FiveForAmountStrategy(7.49),
+    ],
+)
+def test_ofertas_por_quantidade_usam_a_mesma_classe_base(estrategia):
+    assert isinstance(estrategia, QuantityOfferStrategy)
+
+
+def test_classe_base_nao_pode_ser_criada_sozinha():
+    with pytest.raises(TypeError):
+        QuantityOfferStrategy()
+
+
+class QuatroPorSeis(QuantityOfferStrategy):
+    """Oferta inventada só para o teste: 4 unidades por 6,00."""
+
+    def _group_size(self):
+        return 4
+
+    def _price_per_group(self, unit_price):
+        return 6.0
+
+    def _description(self):
+        return "4 for 6.0"
+
+
+def test_nova_oferta_por_quantidade_abaixo_do_minimo_nao_da_desconto():
+    assert QuatroPorSeis().calculate_discount(CREME_DENTAL, 3, 1.79) is None
+
+
+@pytest.mark.parametrize(
+    "quantidade, desconto_esperado",
+    [
+        (4, -1.16),
+        (5, -1.16),
+        (8, -2.32),
+    ],
+)
+def test_nova_oferta_por_quantidade_so_preenche_as_lacunas(quantidade, desconto_esperado):
+    desconto = QuatroPorSeis().calculate_discount(CREME_DENTAL, quantidade, 1.79)
+
+    assert desconto.product is CREME_DENTAL
+    assert desconto.description == "4 for 6.0"
     assert desconto.discount_amount == pytest.approx(desconto_esperado)
